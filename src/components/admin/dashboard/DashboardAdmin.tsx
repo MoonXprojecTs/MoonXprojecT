@@ -329,729 +329,495 @@ function TalentForm({tab,employees,onClose,onSaved}:{tab:string;employees:Karyaw
 }
 function Reports({employees,attendance,onExport}:{employees:Karyawan[];attendance:Absensi[];onExport:(r:any[],f:string)=>void}){const [tab,setTab]=useState('overview'),[payroll,setPayroll]=useState<any[]>([]);useEffect(()=>{if(tab==='payroll')supabase.from('hris_payroll').select('*').order('created_at',{ascending:false}).limit(2000).then(({data})=>setPayroll(data||[]))},[tab]);const items=[['overview','Analytics','report'],['attendance','Laporan Absensi','clock'],['payroll','Laporan Payroll','payroll'],['people','Laporan Karyawan','users']].map(([key,label,icon])=>({key,label,icon}));return <Branch title="Laporan" desc="Export data nyata dari database." items={items} tab={tab} setTab={setTab}>{tab==='overview'?<div className="report-grid"><ReportCard name="Master Karyawan" count={employees.length} onClick={()=>onExport(employees,'laporan-karyawan.csv')}/><ReportCard name="Absensi" count={attendance.length} onClick={()=>onExport(attendance,'laporan-absensi.csv')}/><ReportCard name="Payroll" count={payroll.length} onClick={()=>onExport(payroll,'laporan-payroll.csv')}/></div>:tab==='attendance'?<ReportCard name="Laporan Absensi" count={attendance.length} onClick={()=>onExport(attendance,'laporan-absensi.csv')}/>:tab==='people'?<ReportCard name="Laporan Karyawan" count={employees.length} onClick={()=>onExport(employees,'laporan-karyawan.csv')}/>:<ReportCard name="Laporan Payroll" count={payroll.length} onClick={()=>onExport(payroll,'laporan-payroll.csv')}/>}</Branch>}
 function ReportCard({name,count,onClick}:{name:string;count:number;onClick:()=>void}){return <div className="report-card"><span>REPORT</span><h3>{name}</h3><b>{count}</b><p>record tersedia</p><button className="primary" onClick={onClick}>Export CSV</button></div>}
-function Settings() {
-  const [f, setF] = useState<any>({
-    company_name: 'MoonXprojecT',
-    work_start: '07:00',
-    work_end: '16:00',
-    break_minutes: 60,
-    payday_day: 'Jumat',
-    currency: 'IDR',
-    timezone: 'Asia/Jakarta',
-    overtime_multiplier: 2,
-    late_tolerance_minutes: 10,
-    attendance_radius_meters: 100,
-    auto_approve_attendance: false,
-    notify_late: true,
-    notify_leave: true,
-    maintenance_mode: false,
+function Settings(){
+  const [f,setF]=useState<any>({
+    company_name:'MoonXprojecT',
+    work_start:'07:00',
+    work_end:'16:00',
+    break_minutes:60,
+    payday_day:'Jumat',
+    currency:'IDR',
+    timezone:'Asia/Jakarta',
+    overtime_multiplier:2,
+    late_tolerance_minutes:10,
+    attendance_radius_meters:100,
+    auto_approve_attendance:false,
+    notify_late:true,
+    notify_leave:true,
+    maintenance_mode:false
   });
 
-  const [tab, setTab] = useState('Perusahaan');
-  const [msg, setMsg] = useState('');
+  const [tab,setTab]=useState('Perusahaan');
+  const [msg,setMsg]=useState('');
 
-  useEffect(() => {
+  const themes=[
+    {
+      id:'moon',
+      name:'MoonXprojecT — Navy Gold',
+      description:'Tema utama enterprise MoonXprojecT.',
+      primary:'#101a33',
+      accent:'#d6ae58',
+      background:'#f6f7fb',
+      surface:'#ffffff',
+      text:'#172033',
+      border:'#d6ae58'
+    },
+    {
+      id:'blue',
+      name:'Corporate Blue',
+      description:'Tampilan profesional biru korporat.',
+      primary:'#123b63',
+      accent:'#2f80ed',
+      background:'#f4f7fb',
+      surface:'#ffffff',
+      text:'#172033',
+      border:'#b8cee5'
+    },
+    {
+      id:'green',
+      name:'Professional Green',
+      description:'Tema untuk operasional dan workforce.',
+      primary:'#174d3b',
+      accent:'#2e9d68',
+      background:'#f4f8f6',
+      surface:'#ffffff',
+      text:'#172033',
+      border:'#a9d7c0'
+    },
+    {
+      id:'purple',
+      name:'Modern Purple',
+      description:'Tema modern untuk HR dan talent.',
+      primary:'#3b2a63',
+      accent:'#7c3aed',
+      background:'#f7f5fb',
+      surface:'#ffffff',
+      text:'#172033',
+      border:'#c8b8e8'
+    },
+    {
+      id:'dark',
+      name:'Dark Enterprise',
+      description:'Mode gelap untuk penggunaan malam.',
+      primary:'#0b132b',
+      accent:'#d6ae58',
+      background:'#101827',
+      surface:'#172033',
+      text:'#f8fafc',
+      border:'#334155'
+    },
+    {
+      id:'light',
+      name:'Light Enterprise',
+      description:'Tampilan terang dan minimalis.',
+      primary:'#1f2937',
+      accent:'#2563eb',
+      background:'#f8fafc',
+      surface:'#ffffff',
+      text:'#111827',
+      border:'#dbe3ee'
+    }
+  ];
+
+  const applyTheme=(theme:any)=>{
+    const root=document.documentElement;
+
+    root.style.setProperty('--mx-primary',theme.primary);
+    root.style.setProperty('--mx-accent',theme.accent);
+    root.style.setProperty('--mx-background',theme.background);
+    root.style.setProperty('--mx-surface',theme.surface);
+    root.style.setProperty('--mx-text',theme.text);
+    root.style.setProperty('--mx-border',theme.border);
+
+    root.style.setProperty('--blue',theme.accent);
+    root.style.setProperty('--ink',theme.text);
+    root.style.setProperty('--line',theme.border);
+    root.style.setProperty('--surface',theme.surface);
+    root.style.setProperty('--bg',theme.background);
+
+    localStorage.setItem('moonx-theme',JSON.stringify(theme));
+
+    setMsg(`Tema "${theme.name}" berhasil diterapkan.`);
+  };
+
+  useEffect(()=>{
     supabase
       .from('hris_company_settings')
       .select('*')
-      .eq('id', 1)
+      .eq('id',1)
       .maybeSingle()
-      .then(({ data }) => {
-        if (data) setF(data);
+      .then(({data})=>{
+        if(data)setF(data);
       });
-  }, []);
 
-  const save = async () => {
-    const { error } = await supabase
+    const saved=localStorage.getItem('moonx-theme');
+
+    if(saved){
+      try{
+        applyTheme(JSON.parse(saved));
+      }catch{
+        applyTheme(themes[0]);
+      }
+    }else{
+      applyTheme(themes[0]);
+    }
+  },[]);
+
+  const save=async()=>{
+    const {error}=await supabase
       .from('hris_company_settings')
-      .upsert({
-        ...f,
-        id: 1,
-      });
+      .upsert({...f,id:1});
 
     setMsg(
       error
         ? error.message
         : 'Pengaturan berhasil disimpan.'
     );
-
-    setTimeout(() => setMsg(''), 4000);
   };
 
-  const tabs = [
-    {
-      name: 'Perusahaan',
-      icon: '▦',
-      description: 'Informasi dasar perusahaan',
-    },
-    {
-      name: 'Jam Kerja',
-      icon: '◷',
-      description: 'Aturan jam kerja',
-    },
-    {
-      name: 'Payroll',
-      icon: 'Rp',
-      description: 'Konfigurasi penggajian',
-    },
-    {
-      name: 'Absensi',
-      icon: '✓',
-      description: 'Aturan kehadiran',
-    },
-    {
-      name: 'Notifikasi',
-      icon: '♧',
-      description: 'Pengaturan pemberitahuan',
-    },
-    {
-      name: 'Keamanan',
-      icon: '◇',
-      description: 'Keamanan sistem',
-    },
-  ];
-
-  const groups: Record<string, string[]> = {
-    Perusahaan: [
-      'company_name',
-      'currency',
-      'timezone',
-    ],
-
-    'Jam Kerja': [
-      'work_start',
-      'work_end',
-      'break_minutes',
-      'late_tolerance_minutes',
-    ],
-
-    Payroll: [
-      'payday_day',
-      'overtime_multiplier',
-    ],
-
-    Absensi: [
-      'attendance_radius_meters',
-      'auto_approve_attendance',
-    ],
-
-    Notifikasi: [
-      'notify_late',
-      'notify_leave',
-    ],
-
-    Keamanan: [
-      'maintenance_mode',
-    ],
+  const groups:any={
+    'Perusahaan':['company_name','currency','timezone'],
+    'Jam Kerja':['work_start','work_end','break_minutes','late_tolerance_minutes'],
+    'Payroll':['payday_day','overtime_multiplier'],
+    'Absensi':['attendance_radius_meters','auto_approve_attendance'],
+    'Notifikasi':['notify_late','notify_leave'],
+    'Keamanan':['maintenance_mode']
   };
 
-  const labels: Record<string, string> = {
-    company_name: 'Nama Perusahaan',
-    currency: 'Mata Uang',
-    timezone: 'Zona Waktu',
-    work_start: 'Jam Masuk',
-    work_end: 'Jam Pulang',
-    break_minutes: 'Durasi Istirahat',
-    late_tolerance_minutes: 'Toleransi Keterlambatan',
-    payday_day: 'Hari Gajian',
-    overtime_multiplier: 'Pengali Lembur',
-    attendance_radius_meters: 'Radius Absensi',
-    auto_approve_attendance: 'Auto Approve Absensi',
-    notify_late: 'Notifikasi Keterlambatan',
-    notify_leave: 'Notifikasi Cuti',
-    maintenance_mode: 'Mode Maintenance',
-  };
-
-  const descriptions: Record<string, string> = {
-    company_name:
-      'Nama resmi perusahaan yang digunakan pada sistem HRIS.',
-
-    currency:
-      'Mata uang utama yang digunakan untuk payroll.',
-
-    timezone:
-      'Zona waktu operasional perusahaan.',
-
-    work_start:
-      'Jam mulai kerja standar karyawan.',
-
-    work_end:
-      'Jam selesai kerja standar karyawan.',
-
-    break_minutes:
-      'Durasi waktu istirahat dalam menit.',
-
-    late_tolerance_minutes:
-      'Batas toleransi keterlambatan sebelum dianggap terlambat.',
-
-    payday_day:
-      'Hari pembayaran gaji karyawan.',
-
-    overtime_multiplier:
-      'Pengali perhitungan lembur.',
-
-    attendance_radius_meters:
-      'Jarak maksimal karyawan dari lokasi kerja saat melakukan absensi.',
-
-    auto_approve_attendance:
-      'Absensi baru langsung disetujui tanpa proses manual.',
-
-    notify_late:
-      'Kirim notifikasi ketika karyawan terlambat.',
-
-    notify_leave:
-      'Kirim notifikasi ketika terdapat pengajuan cuti.',
-
-    maintenance_mode:
-      'Aktifkan mode maintenance untuk membatasi akses sistem.',
-  };
-
-  const booleanFields = [
-    'auto_approve_attendance',
-    'notify_late',
-    'notify_leave',
-    'maintenance_mode',
-  ];
-
-  const numberFields = [
-    'break_minutes',
-    'late_tolerance_minutes',
-    'attendance_radius_meters',
-    'overtime_multiplier',
-  ];
-
-  const timeFields = [
-    'work_start',
-    'work_end',
-  ];
-
-  const renderField = (key: string) => {
-    const value = f[key];
-
-    const isBoolean = booleanFields.includes(key);
-
-    if (isBoolean) {
-      return (
-        <div
-          key={key}
-          style={{
-            border: '1px solid #e4e7ec',
-            borderRadius: 14,
-            padding: '18px 20px',
-            background: '#fff',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            gap: 20,
-          }}
-        >
-          <div>
-            <div
-              style={{
-                fontSize: 14,
-                fontWeight: 700,
-                color: '#172b4d',
-                marginBottom: 5,
-              }}
-            >
-              {labels[key]}
-            </div>
-
-            <div
-              style={{
-                fontSize: 12,
-                color: '#667085',
-                lineHeight: 1.5,
-                maxWidth: 600,
-              }}
-            >
-              {descriptions[key]}
-            </div>
-          </div>
-
-          <button
-            type="button"
-            onClick={() =>
-              setF({
-                ...f,
-                [key]: !value,
-              })
-            }
-            style={{
-              position: 'relative',
-              width: 48,
-              height: 26,
-              minWidth: 48,
-              border: 'none',
-              borderRadius: 20,
-              background: value
-                ? '#3155e7'
-                : '#d0d5dd',
-              cursor: 'pointer',
-              transition: 'all .2s ease',
-            }}
-            aria-label={labels[key]}
-          >
-            <span
-              style={{
-                position: 'absolute',
-                top: 3,
-                left: value ? 25 : 3,
-                width: 20,
-                height: 20,
-                borderRadius: '50%',
-                background: '#fff',
-                boxShadow:
-                  '0 2px 5px rgba(0,0,0,.18)',
-                transition: 'all .2s ease',
-              }}
-            />
-          </button>
-        </div>
-      );
-    }
-
-    const inputType = numberFields.includes(key)
-      ? 'number'
-      : timeFields.includes(key)
-      ? 'time'
-      : 'text';
-
-    return (
-      <label
-        key={key}
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 8,
-        }}
-      >
-        <span
-          style={{
-            fontSize: 13,
-            fontWeight: 700,
-            color: '#344054',
-          }}
-        >
-          {labels[key]}
-          {key === 'company_name' && (
-            <span style={{ color: '#e53935' }}>
-              {' '}
-              *
-            </span>
-          )}
-        </span>
-
-        <span
-          style={{
-            fontSize: 11,
-            color: '#98a2b3',
-            marginBottom: 2,
-          }}
-        >
-          {descriptions[key]}
-        </span>
-
-        {key === 'currency' ? (
-          <select
-            value={String(value ?? '')}
-            onChange={(e) =>
-              setF({
-                ...f,
-                [key]: e.target.value,
-              })
-            }
-            style={{
-              width: '100%',
-              height: 48,
-              padding: '0 14px',
-              border: '1px solid #d9dee8',
-              borderRadius: 10,
-              background: '#fff',
-              color: '#344054',
-              fontSize: 14,
-              outline: 'none',
-              boxSizing: 'border-box',
-            }}
-          >
-            <option value="IDR">
-              IDR - Indonesian Rupiah
-            </option>
-            <option value="USD">
-              USD - US Dollar
-            </option>
-            <option value="SGD">
-              SGD - Singapore Dollar
-            </option>
-            <option value="MYR">
-              MYR - Malaysian Ringgit
-            </option>
-          </select>
-        ) : key === 'timezone' ? (
-          <select
-            value={String(value ?? '')}
-            onChange={(e) =>
-              setF({
-                ...f,
-                [key]: e.target.value,
-              })
-            }
-            style={{
-              width: '100%',
-              height: 48,
-              padding: '0 14px',
-              border: '1px solid #d9dee8',
-              borderRadius: 10,
-              background: '#fff',
-              color: '#344054',
-              fontSize: 14,
-              outline: 'none',
-              boxSizing: 'border-box',
-            }}
-          >
-            <option value="Asia/Jakarta">
-              Asia/Jakarta (WIB)
-            </option>
-            <option value="Asia/Makassar">
-              Asia/Makassar (WITA)
-            </option>
-            <option value="Asia/Jayapura">
-              Asia/Jayapura (WIT)
-            </option>
-          </select>
-        ) : key === 'payday_day' ? (
-          <select
-            value={String(value ?? '')}
-            onChange={(e) =>
-              setF({
-                ...f,
-                [key]: e.target.value,
-              })
-            }
-            style={{
-              width: '100%',
-              height: 48,
-              padding: '0 14px',
-              border: '1px solid #d9dee8',
-              borderRadius: 10,
-              background: '#fff',
-              color: '#344054',
-              fontSize: 14,
-              outline: 'none',
-              boxSizing: 'border-box',
-            }}
-          >
-            <option value="Senin">Senin</option>
-            <option value="Selasa">Selasa</option>
-            <option value="Rabu">Rabu</option>
-            <option value="Kamis">Kamis</option>
-            <option value="Jumat">Jumat</option>
-            <option value="Sabtu">Sabtu</option>
-            <option value="Minggu">Minggu</option>
-          </select>
-        ) : (
-          <input
-            type={inputType}
-            value={String(value ?? '')}
-            onChange={(e) => {
-              const newValue = numberFields.includes(key)
-                ? Number(e.target.value)
-                : e.target.value;
-
-              setF({
-                ...f,
-                [key]: newValue,
-              });
-            }}
-            style={{
-              width: '100%',
-              height: 48,
-              padding: '0 14px',
-              border: '1px solid #d9dee8',
-              borderRadius: 10,
-              background: '#fff',
-              color: '#344054',
-              fontSize: 14,
-              outline: 'none',
-              boxSizing: 'border-box',
-            }}
-          />
-        )}
-      </label>
-    );
+  const labels:any={
+    company_name:'Nama Perusahaan',
+    currency:'Mata Uang',
+    timezone:'Zona Waktu',
+    work_start:'Jam Masuk',
+    work_end:'Jam Pulang',
+    break_minutes:'Istirahat (menit)',
+    late_tolerance_minutes:'Toleransi Terlambat (menit)',
+    payday_day:'Hari Gajian',
+    overtime_multiplier:'Pengali Lembur',
+    attendance_radius_meters:'Radius Absensi (meter)',
+    auto_approve_attendance:'Auto Approve Absensi',
+    notify_late:'Notifikasi Keterlambatan',
+    notify_leave:'Notifikasi Cuti',
+    maintenance_mode:'Mode Maintenance'
   };
 
   return (
     <>
       <Heading
         title="Pengaturan"
-        desc="Kelola konfigurasi perusahaan, jam kerja, payroll, absensi, notifikasi, dan keamanan sistem."
+        desc="Kelola konfigurasi perusahaan, operasional, payroll, absensi, keamanan, dan tampilan sistem."
+        action="Simpan Perubahan"
+        onAction={save}
       />
 
-      {msg && (
-        <div
-          style={{
-            marginTop: 18,
-            marginBottom: 18,
-            padding: '12px 16px',
-            borderRadius: 10,
-            background: '#ecfdf3',
-            border: '1px solid #abefc6',
-            color: '#067647',
-            fontSize: 13,
-            fontWeight: 600,
-          }}
-        >
-          ✓ {msg}
+      {msg&&(
+        <div className="theme-message">
+          {msg}
         </div>
       )}
 
-      {/* TAB NAVIGATION */}
-      <div
-        style={{
-          marginTop: 24,
-          background: '#fff',
-          border: '1px solid #e4e7ec',
-          borderRadius: 16,
-          padding: 8,
-          boxShadow:
-            '0 4px 16px rgba(16,24,40,.04)',
-          display: 'grid',
-          gridTemplateColumns:
-            'repeat(6, minmax(0, 1fr))',
-          gap: 4,
-          overflowX: 'auto',
-        }}
-      >
-        {tabs.map((item) => {
-          const active = tab === item.name;
+      <div className="settings-tabs">
+        {Object.keys(groups).map(x=>(
+          <button
+            key={x}
+            className={tab===x?'active':''}
+            onClick={()=>setTab(x)}
+          >
+            {x}
+          </button>
+        ))}
 
-          return (
-            <button
-              key={item.name}
-              type="button"
-              onClick={() => setTab(item.name)}
-              style={{
-                border: 'none',
-                borderRadius: 11,
-                padding: '13px 10px',
-                background: active
-                  ? '#3155e7'
-                  : 'transparent',
-                color: active
-                  ? '#fff'
-                  : '#475467',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 9,
-                fontSize: 13,
-                fontWeight: 700,
-                transition: 'all .2s ease',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              <span
-                style={{
-                  width: 27,
-                  height: 27,
-                  borderRadius: 8,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  background: active
-                    ? 'rgba(255,255,255,.16)'
-                    : '#f2f4f7',
-                  color: active
-                    ? '#fff'
-                    : '#475467',
-                  fontSize:
-                    item.name === 'Payroll'
-                      ? 10
-                      : 16,
-                  fontWeight: 800,
-                }}
+        <button
+          className={tab==='Tampilan & Tema'?'active':''}
+          onClick={()=>setTab('Tampilan & Tema')}
+        >
+          🎨 Tampilan & Tema
+        </button>
+      </div>
+
+      {tab==='Tampilan & Tema' ? (
+        <div className="theme-manager">
+
+          <div className="theme-manager-header">
+            <div>
+              <h2>Tampilan & Tema</h2>
+              <p>
+                Pilih tampilan visual yang digunakan oleh HRIS MoonXprojecT.
+              </p>
+            </div>
+          </div>
+
+          <div className="theme-grid">
+
+            {themes.map(theme=>(
+              <button
+                type="button"
+                key={theme.id}
+                className="theme-card"
+                onClick={()=>applyTheme(theme)}
               >
-                {item.icon}
-              </span>
 
-              {item.name}
-            </button>
-          );
-        })}
-      </div>
+                <div
+                  className="theme-preview"
+                  style={{
+                    background:theme.background
+                  }}
+                >
 
-      {/* MAIN CARD */}
-      <div
-        style={{
-          marginTop: 20,
-          background: '#fff',
-          border: '1px solid #e4e7ec',
-          borderRadius: 18,
-          overflow: 'hidden',
-          boxShadow:
-            '0 5px 20px rgba(16,24,40,.045)',
-        }}
-      >
-        {/* CARD HEADER */}
-        <div
-          style={{
-            padding: '26px 30px',
-            borderBottom: '1px solid #eaecf0',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            gap: 20,
-            background:
-              'linear-gradient(135deg,#ffffff 0%,#f8faff 100%)',
-          }}
-        >
-          <div>
-            <h2
-              style={{
-                margin: 0,
-                fontSize: 21,
-                color: '#172b4d',
-                fontWeight: 800,
-              }}
-            >
-              {tab === 'Perusahaan'
-                ? 'Informasi Perusahaan'
-                : tab}
-            </h2>
+                  <div
+                    className="theme-preview-sidebar"
+                    style={{
+                      background:theme.primary
+                    }}
+                  >
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
 
-            <p
-              style={{
-                margin: '7px 0 0',
-                color: '#667085',
-                fontSize: 13,
-              }}
-            >
-              {tabs.find(
-                (item) => item.name === tab
-              )?.description}
-            </p>
+                  <div className="theme-preview-content">
+
+                    <div
+                      className="theme-preview-top"
+                      style={{
+                        borderColor:theme.border
+                      }}
+                    ></div>
+
+                    <div className="theme-preview-cards">
+
+                      <i
+                        style={{
+                          background:theme.accent
+                        }}
+                      ></i>
+
+                      <i
+                        style={{
+                          background:theme.primary
+                        }}
+                      />
+
+                      <i
+                        style={{
+                          background:theme.border
+                        }}
+                      />
+
+                    </div>
+
+                    <div
+                      className="theme-preview-line"
+                      style={{
+                        background:theme.accent
+                      }}
+                    ></div>
+
+                  </div>
+
+                </div>
+
+                <div className="theme-card-body">
+
+                  <div>
+                    <strong>
+                      {theme.name}
+                    </strong>
+
+                    <small>
+                      {theme.description}
+                    </small>
+                  </div>
+
+                  <span
+                    className="theme-color-dot"
+                    style={{
+                      background:theme.accent
+                    }}
+                  ></span>
+
+                </div>
+
+              </button>
+            ))}
+
           </div>
 
-          <div
-            style={{
-              width: 62,
-              height: 62,
-              borderRadius: 16,
-              background:
-                'linear-gradient(135deg,#3155e7,#5b73ed)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#fff',
-              fontSize: 27,
-              boxShadow:
-                '0 8px 20px rgba(49,85,231,.22)',
-            }}
-          >
-            {tabs.find(
-              (item) => item.name === tab
-            )?.icon}
-          </div>
-        </div>
+          <div className="custom-theme-panel">
 
-        {/* FORM */}
-        <div
-          style={{
-            padding: 30,
-          }}
-        >
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns:
-                'repeat(2, minmax(0, 1fr))',
-              gap: 25,
-            }}
-          >
-            {groups[tab].map(renderField)}
-          </div>
+            <div>
+              <h3>Custom Theme</h3>
+              <p>
+                Gunakan tema pilihan Anda dengan warna utama dan aksen perusahaan.
+              </p>
+            </div>
 
-          {/* ACTION */}
-          <div
-            style={{
-              marginTop: 30,
-              paddingTop: 22,
-              borderTop: '1px solid #eaecf0',
-              display: 'flex',
-              justifyContent: 'flex-end',
-              gap: 10,
-            }}
-          >
+            <div className="custom-theme-controls">
+
+              <label>
+                Primary
+                <input
+                  type="color"
+                  value={getComputedStyle(document.documentElement)
+                    .getPropertyValue('--mx-primary')
+                    .trim() || '#101a33'}
+                  onChange={e=>{
+                    document.documentElement.style.setProperty(
+                      '--mx-primary',
+                      e.target.value
+                    );
+                    document.documentElement.style.setProperty(
+                      '--ink',
+                      e.target.value
+                    );
+                  }}
+                />
+              </label>
+
+              <label>
+                Accent
+                <input
+                  type="color"
+                  value={getComputedStyle(document.documentElement)
+                    .getPropertyValue('--mx-accent')
+                    .trim() || '#d6ae58'}
+                  onChange={e=>{
+                    document.documentElement.style.setProperty(
+                      '--mx-accent',
+                      e.target.value
+                    );
+                    document.documentElement.style.setProperty(
+                      '--blue',
+                      e.target.value
+                    );
+                  }}
+                />
+              </label>
+
+            </div>
+
             <button
               type="button"
-              onClick={() => setTab(tab)}
-              style={{
-                height: 46,
-                padding: '0 20px',
-                borderRadius: 10,
-                border: '1px solid #d0d5dd',
-                background: '#fff',
-                color: '#344054',
-                fontSize: 13,
-                fontWeight: 700,
-                cursor: 'pointer',
+              className="primary theme-save-button"
+              onClick={()=>{
+                const root=document.documentElement;
+
+                const customTheme={
+                  id:'custom',
+                  name:'Custom Theme',
+                  description:'Tema kustom MoonXprojecT',
+                  primary:root
+                    .getPropertyValue('--mx-primary')
+                    .trim() || '#101a33',
+                  accent:root
+                    .getPropertyValue('--mx-accent')
+                    .trim() || '#d6ae58',
+                  background:root
+                    .getPropertyValue('--mx-background')
+                    .trim() || '#f6f7fb',
+                  surface:root
+                    .getPropertyValue('--mx-surface')
+                    .trim() || '#ffffff',
+                  text:root
+                    .getPropertyValue('--mx-text')
+                    .trim() || '#172033',
+                  border:root
+                    .getPropertyValue('--mx-border')
+                    .trim() || '#d6ae58'
+                };
+
+                localStorage.setItem(
+                  'moonx-theme',
+                  JSON.stringify(customTheme)
+                );
+
+                setMsg('Custom Theme berhasil disimpan.');
               }}
             >
-              Batal
+              Simpan Custom Theme
             </button>
 
-            <button
-              type="button"
-              onClick={save}
-              style={{
-                height: 46,
-                padding: '0 24px',
-                borderRadius: 10,
-                border: 'none',
-                background:
-                  'linear-gradient(135deg,#3155e7,#4968eb)',
-                color: '#fff',
-                fontSize: 13,
-                fontWeight: 700,
-                cursor: 'pointer',
-                boxShadow:
-                  '0 6px 14px rgba(49,85,231,.22)',
-              }}
-            >
-              ✓ &nbsp; Simpan Perubahan
-            </button>
           </div>
+
         </div>
-      </div>
+      ) : (
 
-      {/* RESPONSIVE */}
-      <style>
-        {`
-          @media (max-width: 900px) {
-            .settings-content {
-              padding: 20px !important;
-            }
-          }
+        <div className="panel form-panel settings-content">
 
-          @media (max-width: 700px) {
-            .settings-content {
-              padding: 16px !important;
-            }
-          }
+          <div className="form-grid">
 
-          @media (max-width: 650px) {
-            .settings-content > div {
-              grid-template-columns: 1fr !important;
-            }
-          }
-        `}
-      </style>
+            {groups[tab].map((k:string)=>{
+
+              const v=f[k];
+
+              const bool=[
+                'auto_approve_attendance',
+                'notify_late',
+                'notify_leave',
+                'maintenance_mode'
+              ].includes(k);
+
+              return (
+                <label key={k}>
+
+                  {labels[k]}
+
+                  {bool ? (
+                    <input
+                      type="checkbox"
+                      checked={!!v}
+                      onChange={e=>
+                        setF({
+                          ...f,
+                          [k]:e.target.checked
+                        })
+                      }
+                    />
+                  ) : (
+                    <input
+                      type={
+                        [
+                          'break_minutes',
+                          'late_tolerance_minutes',
+                          'attendance_radius_meters',
+                          'overtime_multiplier'
+                        ].includes(k)
+                          ? 'number'
+                          : k.includes('start')||k.includes('end')
+                            ? 'time'
+                            : 'text'
+                      }
+                      value={String(v??'')}
+                      onChange={e=>
+                        setF({
+                          ...f,
+                          [k]:
+                            [
+                              'break_minutes',
+                              'late_tolerance_minutes',
+                              'attendance_radius_meters',
+                              'overtime_multiplier'
+                            ].includes(k)
+                              ? Number(e.target.value)
+                              : e.target.value
+                        })
+                      }
+                    />
+                  )}
+
+                </label>
+              );
+            })}
+
+          </div>
+
+        </div>
+      )}
+
     </>
   );
-}
-function Audit() {
+}function Audit() {
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
