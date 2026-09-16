@@ -120,11 +120,16 @@ const RegistrasiKaryawan: React.FC<RegistrasiKaryawanProps> = ({
     <div className="registration-page">
       <div className="registration-shell">
         <div className="registration-brand">
-          <div className="registration-logo">Mode malam</div>
+          <div className="registration-logo">
+  <img
+    src="/sakura-moon.jpg"
+    alt="MoonXprojecT"
+  />
+</div>
 
           <div>
-            <strong>MoonXprojectT</strong>
-      <span>Human Resources Platform</span>
+            <strong>MoonXprojecT</strong>
+      <span>Human Resources & Workforce Platform</span>
           </div>
         </div>
 
