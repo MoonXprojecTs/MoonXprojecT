@@ -11,16 +11,16 @@ function Modal({title,onClose,onSubmit,children,submit='Simpan'}:{title:string;o
 function Table({cols,rows}:{cols:string[];rows:Row[]}){return <div className="panel table-panel"><div className="table-wrap"><table><thead><tr>{cols.map(c=><th key={c}>{c.replaceAll('_',' ')}</th>)}</tr></thead><tbody>{rows.length?rows.map((r,i)=><tr key={r.id||i}>{cols.map(c=><td key={c}>{c==='status'||c==='stage'?<Status v={String(r[c]??'—')}/>:c.includes('salary')||c.includes('nominal')||c.includes('proposed')?money(Number(r[c]||0)):String(r[c]??'—')}</td>)}</tr>):<tr><td className="empty-cell" colSpan={cols.length}>Belum ada data.</td></tr>}</tbody></table></div></div>}
 
 export default function RecruitmentATSv25(){
- const [tab,setTab]=useState('command'),
-[reqs,setReqs]=useState<Row[]>([]),
-[openings,setOpenings]=useState<Row[]>([]),
-[profiles,setProfiles]=useState<Row[]>([]),
-[apps,setApps]=useState<Row[]>([]),
-[interviews,setInterviews]=useState<Row[]>([]),
-[offers,setOffers]=useState<Row[]>([]),
-[handoffs,setHandoffs]=useState<Row[]>([]),
-[modal,setModal]=useState<string|null>(null),
-[message... 
+const [tab, setTab] = useState('command');
+const [reqs, setReqs] = useState<Row[]>([]);
+const [openings, setOpenings] = useState<Row[]>([]);
+const [profiles, setProfiles] = useState<Row[]>([]);
+const [apps, setApps] = useState<Row[]>([]);
+const [interviews, setInterviews] = useState<Row[]>([]);
+const [offers, setOffers] = useState<Row[]>([]);
+const [handoffs, setHandoffs] = useState<Row[]>([]);
+const [modal, setModal] = useState<string | null>(null);
+const [msg, setMsg] = useState('');
  const load=async()=>{const [a,b,c,d,e,f,g]=await Promise.all([supabase.from('hris_recruitment_requisitions_v25').select('*').order('created_at',{ascending:false}),supabase.from('hris_recruitment_openings_v25').select('*').order('created_at',{ascending:false}),supabase.from('hris_candidate_profiles_v25').select('*').order('created_at',{ascending:false}),supabase.from('hris_recruitment_applications_v25').select('*').order('created_at',{ascending:false}),supabase.from('hris_recruitment_interviews_v25').select('*').order('scheduled_at'),supabase.from('hris_recruitment_offers_v25').select('*').order('created_at',{ascending:false}),supabase.from('hris_recruitment_onboarding_handoffs_v25').select('*').order('created_at',{ascending:false})]);setReqs(a.data||[]);setOpenings(b.data||[]);setProfiles(c.data||[]);setApps(d.data||[]);setInterviews(e.data||[]);setOffers(f.data||[]);setHandoffs(g.data||[]);const er=[a,b,c,d,e,f,g].find(x=>x.error);if(er)setMsg(er.error?.message||'Gagal memuat ATS');};
  useEffect(()=>{load()},[]);
  const active=apps.filter(x=>x.status==='Active').length, hired=apps.filter(x=>x.stage==='Hired').length, pendingReq=reqs.filter(x=>x.status==='Menunggu Approval').length, pendingOffer=offers.filter(x=>x.status==='Menunggu Approval').length;
