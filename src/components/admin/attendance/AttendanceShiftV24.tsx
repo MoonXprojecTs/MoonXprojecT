@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from '../../../lib/supabase/client';
 
 type Shift={id:string;kode:string;nama:string;jam_masuk:string;jam_pulang:string;durasi_istirahat_menit:number;toleransi_menit:number;lintas_hari:boolean;aktif:boolean};
