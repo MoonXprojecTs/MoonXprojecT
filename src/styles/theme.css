@@ -1,0 +1,45 @@
+@import './variables.css';
+
+:root {
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
+
+  color: #172033;
+  background: #f7f8fb;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+
+  --navy: #0b1222;
+  --navy2: #14213d;
+  --gold: #c9a227;
+  --gold2: #e4ca70;
+  --muted: #667085;
+  --line: #e7eaf0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100%;
+}
+
+body {
+  background: #f7f8fb;
+}
+
+.app-root {
+  min-height: 100vh;
+}
