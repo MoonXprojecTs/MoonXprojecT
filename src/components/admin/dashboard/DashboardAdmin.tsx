@@ -19,12 +19,23 @@ import EnterpriseRoadmapV26V35 from '../enterprise/EnterpriseRoadmapV26V35';
 import moonLogo from '../../../assets/moon-logo.svg';
 
 type Karyawan = {
-  id: string; id_karyawan?: string; nama: string; jabatan?: string; email?: string;
-  no_telp?: string; alamat_rumah?: string; gaji_pokok?: number; nik_ktp?: string;
-  departemen?: string; status_aktif?: boolean; tanggal_masuk?: string;
-  status_karyawan?: string; role?: string;
-};
-type Absensi = {
+  id: string;
+  id_karyawan?: string;
+  nama: string;
+  jabatan?: string;
+  email?: string;
+  email_terverifikasi?: boolean;
+  auth_user_id?: string;
+  no_telp?: string;
+  alamat_rumah?: string;
+  gaji_pokok?: number;
+  nik_ktp?: string;
+  departemen?: string;
+  status_aktif?: boolean;
+  tanggal_masuk?: string;
+  status_karyawan?: string;
+  role?: string;
+};type Absensi = {
   id: string; karyawan_id?: string; id_karyawan?: string; nama?: string; jabatan?: string;
   tanggal?: string; jam_masuk?: string; jam_pulang?: string; total_jam?: string;
   status?: string; lokasi?: string; foto?: string; selfie_masuk?: string;
@@ -98,53 +109,111 @@ export default function DashboardAdmin(){
  useEffect(()=>{const read=()=>{const candidate=location.hash.replace('#/','') as MenuKey;if(candidate&&menuGroups.flatMap(g=>g.items).some(x=>x[0]===candidate)&&menuPermissionForRole(candidate,userRole,dbPerms))setMenu(candidate)};read();window.addEventListener('hashchange',read);return()=>window.removeEventListener('hashchange',read)},[userRole,dbPerms]);
  const navigate=(next:MenuKey)=>{setMenu(next);location.hash=`/${next}`;if(window.innerWidth<900)setSidebar(false)};
   async function confirmEmployeeEmail(employee: Karyawan) {
-    if (!employee.email) {
-      setError('Karyawan belum memiliki email.');
-      return;
-    }
-
-    try {
-      const { data: { session } } =
-        await supabase.auth.getSession();
-
-      if (!session?.access_token) {
-        setError('Sesi login tidak ditemukan.');
-        return;
-      }
-
-      const response = await fetch(
-        '/.netlify/functions/confirm-email',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization:
-              `Bearer ${session.access_token}`,
-          },
-          body: JSON.stringify({
-            employee_id: employee.id,
-          }),
-        }
-      );
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          result.error || 'Konfirmasi email gagal.'
-        );
-      }
-
-      setToast('Email berhasil dikonfirmasi.');
-      refresh();
-
-    } catch (error: any) {
-      setError(
-        error.message || 'Konfirmasi email gagal.'
-      );
-    }
+  if (!employee.email) {
+    setError('Karyawan belum memiliki email.');
+    return;
   }
 
+  if (!employee.auth_user_id) {
+    setError(
+      'Akun login karyawan belum terhubung dengan data karyawan.'
+    );
+    return;
+  }
+
+  if (employee.email_terverifikasi) {
+    setToast(
+      `Email ${employee.email} sudah terverifikasi.`
+    );
+    return;
+  }
+
+  const confirmed = window.confirm(
+    `Konfirmasi email karyawan berikut?\n\n` +
+    `Nama: ${employee.nama}\n` +
+    `ID: ${employee.id_karyawan || '-'}\n` +
+    `Email: ${employee.email}`
+  );
+
+  if (!confirmed) {
+    return;
+  }
+
+  try {
+    setError('');
+
+    const {
+      data: sessionData,
+      error: sessionError,
+    } = await supabase.auth.getSession();
+
+    if (sessionError) {
+      throw sessionError;
+    }
+
+    const accessToken =
+      sessionData.session?.access_token;
+
+    if (!accessToken) {
+      throw new Error(
+        'Sesi login HR tidak ditemukan. Silakan login ulang.'
+      );
+    }
+
+    setLoading(true);
+
+    const response = await fetch(
+      '/.netlify/functions/confirm-email',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization:
+            `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          employee_id: employee.id,
+        }),
+      }
+    );
+
+    let result: {
+      success?: boolean;
+      message?: string;
+      error?: string;
+    } = {};
+
+    try {
+      result = await response.json();
+    } catch {
+      result = {};
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        result.error ||
+        result.message ||
+        'Konfirmasi email gagal.'
+      );
+    }
+
+    setToast(
+      result.message ||
+      `Email ${employee.email} berhasil dikonfirmasi.`
+    );
+
+    await refresh();
+  } catch (error: unknown) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : 'Konfirmasi email gagal.';
+
+    setError(message);
+  } finally {
+    setLoading(false);
+  }
+}
  async function refresh(){
   setLoading(true); setError('');
   const [k,a]=await Promise.all([
@@ -324,14 +393,25 @@ function Employees({data,onDelete,onEdit,onExport,onAdd,onConfirmEmail}:{data:Ka
     </button>
 
     {k.email && (
-      <button
-        className="link-btn"
-        onClick={() => onConfirmEmail(k)}
-      >
-        Konfirmasi Email
-      </button>
-    )}
-
+  <button
+    className="link-btn"
+    onClick={() => onConfirmEmail(k)}
+    disabled={!k.auth_user_id || k.email_terverifikasi}
+    title={
+      k.email_terverifikasi
+        ? 'Email sudah terverifikasi'
+        : !k.auth_user_id
+          ? 'Akun login belum terhubung'
+          : 'Konfirmasi email'
+    }
+  >
+    {k.email_terverifikasi
+      ? '✓ Email Terverifikasi'
+      : !k.auth_user_id
+        ? 'Akun Belum Terhubung'
+        : 'Konfirmasi Email'}
+  </button>
+)}
     <button
       className="danger-text"
       onClick={() => onDelete(k)}
