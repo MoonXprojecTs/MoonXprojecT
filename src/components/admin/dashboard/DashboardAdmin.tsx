@@ -819,7 +819,7 @@ function Settings(){
 
   </div>
 
-  <div className="custom-theme-actions">
+    <div className="custom-theme-actions">
 
     <button
       type="button"
@@ -827,60 +827,18 @@ function Settings(){
       onClick={() => {
         const root = document.documentElement;
 
-        root.style.setProperty(
-          '--mx-primary',
-          customTheme.primary
-        );
+        root.style.setProperty('--mx-primary', customTheme.primary);
+        root.style.setProperty('--mx-accent', customTheme.accent);
+        root.style.setProperty('--mx-background', customTheme.background);
+        root.style.setProperty('--mx-surface', customTheme.surface);
+        root.style.setProperty('--mx-text', customTheme.text);
+        root.style.setProperty('--mx-border', customTheme.border);
 
-        root.style.setProperty(
-          '--mx-accent',
-          customTheme.accent
-        );
-
-        root.style.setProperty(
-          '--mx-background',
-          customTheme.background
-        );
-
-        root.style.setProperty(
-          '--mx-surface',
-          customTheme.surface
-        );
-
-        root.style.setProperty(
-          '--mx-text',
-          customTheme.text
-        );
-
-        root.style.setProperty(
-          '--mx-border',
-          customTheme.border
-        );
-
-        root.style.setProperty(
-          '--blue',
-          customTheme.accent
-        );
-
-        root.style.setProperty(
-          '--ink',
-          customTheme.text
-        );
-
-        root.style.setProperty(
-          '--bg',
-          customTheme.background
-        );
-
-        root.style.setProperty(
-          '--surface',
-          customTheme.surface
-        );
-
-        root.style.setProperty(
-          '--line',
-          customTheme.border
-        );
+        root.style.setProperty('--blue', customTheme.accent);
+        root.style.setProperty('--ink', customTheme.text);
+        root.style.setProperty('--bg', customTheme.background);
+        root.style.setProperty('--surface', customTheme.surface);
+        root.style.setProperty('--line', customTheme.border);
 
         localStorage.setItem(
           'moonx-theme',
@@ -901,150 +859,75 @@ function Settings(){
   </div>
 
 </div>
-          
-  <div className="custom-theme-actions">
 
-    <button
-      className="primary"
-      onClick={() => {
-        const root = document.documentElement;
+{Object.entries(f).map(([k, v]) => {
+  const bool = typeof v === 'boolean';
 
-        root.style.setProperty(
-          '--mx-primary',
-          customTheme.primary
-        );
+  return (
+    <label key={k}>
+      {labels[k]}
 
-        root.style.setProperty(
-          '--mx-accent',
-          customTheme.accent
-        );
-
-        root.style.setProperty(
-          '--mx-background',
-          customTheme.background
-        );
-
-        root.style.setProperty(
-          '--mx-surface',
-          customTheme.surface
-        );
-
-        root.style.setProperty(
-          '--mx-text',
-          customTheme.text
-        );
-
-        root.style.setProperty(
-          '--mx-border',
-          customTheme.border
-        );
-
-        root.style.setProperty(
-          '--blue',
-          customTheme.accent
-        );
-
-        root.style.setProperty(
-          '--ink',
-          customTheme.text
-        );
-
-        root.style.setProperty(
-          '--bg',
-          customTheme.background
-        );
-
-        root.style.setProperty(
-          '--surface',
-          customTheme.surface
-        );
-
-        root.style.setProperty(
-          '--line',
-          customTheme.border
-        );
-
-        localStorage.setItem(
-          'moonx-theme',
-          JSON.stringify(customTheme)
-        );
-
-        setMsg('Custom Theme berhasil disimpan.');
-      }}
-    >
-      Simpan Custom Theme
-    </button>
-
-  </div>
+      {bool ? (
+        <input
+          type="checkbox"
+          checked={!!v}
+          onChange={e =>
+            setF({
+              ...f,
+              [k]: e.target.checked
+            })
+          }
+        />
+      ) : (
+        <input
+          type={
+            [
+              'break_minutes',
+              'late_tolerance_minutes',
+              'attendance_radius_meters',
+              'overtime_multiplier'
+            ].includes(k)
+              ? 'number'
+              : k.includes('start') || k.includes('end')
+                ? 'time'
+                : 'text'
+          }
+          value={String(v ?? '')}
+          onChange={e =>
+            setF({
+              ...f,
+              [k]: [
+                'break_minutes',
+                'late_tolerance_minutes',
+                'attendance_radius_meters',
+                'overtime_multiplier'
+              ].includes(k)
+                ? Number(e.target.value)
+                : e.target.value
+            })
+          }
+        />
+      )}
+    </label>
+  );
+})}
 
 </div>
-              return (
-                <label key={k}>
 
-                  {labels[k]}
+</div>
+)}
 
-                  {bool ? (
-                    <input
-                      type="checkbox"
-                      checked={!!v}
-                      onChange={e=>
-                        setF({
-                          ...f,
-                          [k]:e.target.checked
-                        })
-                      }
-                    />
-                  ) : (
-                    <input
-                      type={
-                        [
-                          'break_minutes',
-                          'late_tolerance_minutes',
-                          'attendance_radius_meters',
-                          'overtime_multiplier'
-                        ].includes(k)
-                          ? 'number'
-                          : k.includes('start')||k.includes('end')
-                            ? 'time'
-                            : 'text'
-                      }
-                      value={String(v??'')}
-                      onChange={e=>
-                        setF({
-                          ...f,
-                          [k]:
-                            [
-                              'break_minutes',
-                              'late_tolerance_minutes',
-                              'attendance_radius_meters',
-                              'overtime_multiplier'
-                            ].includes(k)
-                              ? Number(e.target.value)
-                              : e.target.value
-                        })
-                      }
-                    />
-                  )}
+</>
+);
+}
 
-                </label>
-              );
-            })}
-
-          </div>
-
-        </div>
-      )}
-
-    </>
-  );
-}function Audit() {
+function Audit() {
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [actionFilter, setActionFilter] = useState('ALL');
   const [moduleFilter, setModuleFilter] = useState('ALL');
   const [selected, setSelected] = useState<any | null>(null);
-
   useEffect(() => {
     let mounted = true;
 
