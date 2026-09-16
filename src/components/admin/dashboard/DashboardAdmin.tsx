@@ -655,149 +655,7 @@ function Settings(){
 
           </div>
 
-         <div className="custom-theme-panel">
-
-  <div>
-    <h3>Custom Theme</h3>
-    <p>
-      Gunakan warna pilihan Anda untuk tampilan HRIS.
-    </p>
-  </div>
-
-  <div className="custom-theme-controls">
-
-    <label>
-      Primary
-      <input
-        type="color"
-        value={currentPrimary}
-        onChange={e => {
-          const value = e.target.value;
-
-          document.documentElement.style.setProperty(
-            '--mx-primary',
-            value
-          );
-
-          document.documentElement.style.setProperty(
-            '--ink',
-            value
-          );
-        }}
-      />
-    </label>
-
-    <label>
-      Accent
-      <input
-        type="color"
-        value={currentAccent}
-        onChange={e => {
-          const value = e.target.value;
-
-          document.documentElement.style.setProperty(
-            '--mx-accent',
-            value
-          );
-
-          document.documentElement.style.setProperty(
-            '--blue',
-            value
-          );
-        }}
-      />
-    </label>
-
-    <label>
-      Background
-      <input
-        type="color"
-        value={currentBackground}
-        onChange={e => {
-          const value = e.target.value;
-
-          document.documentElement.style.setProperty(
-            '--mx-background',
-            value
-          );
-
-          document.documentElement.style.setProperty(
-            '--bg',
-            value
-          );
-        }}
-      />
-    </label>
-
-    <label>
-      Surface
-      <input
-        type="color"
-        value={currentSurface}
-        onChange={e => {
-          const value = e.target.value;
-
-          document.documentElement.style.setProperty(
-            '--mx-surface',
-            value
-          );
-
-          document.documentElement.style.setProperty(
-            '--surface',
-            value
-          );
-        }}
-      />
-    </label>
-
-    <label>
-      Text
-      <input
-        type="color"
-        value={currentText}
-        onChange={e => {
-          const value = e.target.value;
-
-          document.documentElement.style.setProperty(
-            '--mx-text',
-            value
-          );
-
-          document.documentElement.style.setProperty(
-            '--ink',
-            value
-          );
-        }}
-      />
-    </label>
-
-    <label>
-      Border
-      <input
-        type="color"
-        value={currentBorder}
-        onChange={e => {
-          const value = e.target.value;
-
-          document.documentElement.style.setProperty(
-            '--mx-border',
-            value
-          );
-
-          document.documentElement.style.setProperty(
-            '--line',
-            value
-          );
-        }}
-      />
-    </label>
-
-  </div>
-
-</div>
-        
-
-        <div className="custom-theme-panel">
+<div className="custom-theme-panel">
 
   <div>
     <h3>Custom Theme</h3>
@@ -961,6 +819,89 @@ function Settings(){
 
   </div>
 
+  <div className="custom-theme-actions">
+
+    <button
+      type="button"
+      className="primary theme-save-button"
+      onClick={() => {
+        const root = document.documentElement;
+
+        root.style.setProperty(
+          '--mx-primary',
+          customTheme.primary
+        );
+
+        root.style.setProperty(
+          '--mx-accent',
+          customTheme.accent
+        );
+
+        root.style.setProperty(
+          '--mx-background',
+          customTheme.background
+        );
+
+        root.style.setProperty(
+          '--mx-surface',
+          customTheme.surface
+        );
+
+        root.style.setProperty(
+          '--mx-text',
+          customTheme.text
+        );
+
+        root.style.setProperty(
+          '--mx-border',
+          customTheme.border
+        );
+
+        root.style.setProperty(
+          '--blue',
+          customTheme.accent
+        );
+
+        root.style.setProperty(
+          '--ink',
+          customTheme.text
+        );
+
+        root.style.setProperty(
+          '--bg',
+          customTheme.background
+        );
+
+        root.style.setProperty(
+          '--surface',
+          customTheme.surface
+        );
+
+        root.style.setProperty(
+          '--line',
+          customTheme.border
+        );
+
+        localStorage.setItem(
+          'moonx-theme',
+          JSON.stringify({
+            id: 'custom',
+            name: 'Custom Theme',
+            description: 'Tema kustom MoonXprojecT',
+            ...customTheme
+          })
+        );
+
+        setMsg('Custom Theme berhasil disimpan.');
+      }}
+    >
+      Simpan Custom Theme
+    </button>
+
+  </div>
+
+</div>
+          
   <div className="custom-theme-actions">
 
     <button
