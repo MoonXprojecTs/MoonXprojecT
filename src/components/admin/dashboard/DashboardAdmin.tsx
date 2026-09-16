@@ -207,7 +207,7 @@ export default function DashboardAdmin(){
     {menu==='payroll-engine'&&<PayrollEngineV9/>}{menu==='payroll-production-v22'&&<PayrollProductionV22/>}{menu==='payroll-indonesia-v23'&&<PayrollIndonesiaV23/>}
     {['performance','kpi'].includes(menu)&&<TalentModule initial={menu} employees={employees}/>} {menu==='recruitment-v25'&&<RecruitmentATSv25/>} {menu.startsWith('enterprise-v')&&<EnterpriseRoadmapV26V35 version={menu.replace('enterprise-','') as any}/>} {['recruitment','candidates'].includes(menu)&&<RecruitmentEnterprise/>}
     {menu==='reports'&&<Reports employees={employees} attendance={attendance} onExport={exportCsv}/>}
-    {menu==='settings'&&<Settings/>}{menu==='roles'&&<RoleEditorEnterprise userRole={userRole}/>} {menu==='audit'&&<Audit/>}{menu==='approvals'&&<ApprovalCenter/>}{menu==='notifications'&&<Notifications/>} {menu==='system-health'&&<SystemHealth/>}{menu==='enterprise-v26'&&<EnterpriseV26 employees={employees}/>}{menu==='security-v21'&&<SecurityCenterV21/>} 
+    {menu==='settings'&&<Settings/>}{menu==='roles'&&<RoleEditorEnterprise userRole={userRole}/>} {menu==='audit'&&<Audit/>}{menu==='approvals'&&<ApprovalCenter/>}{menu==='notifications'&&<Notifications/>} {menu==='system-health'&&<SystemHealth/>}{menu==='enterprise-v26'&&<'enterprise-v26'employees={employees}/>}{menu==='security-v21'&&<SecurityCenterV21/>} 
     {editing&&<EmployeeEditor employee={editing} onClose={()=>setEditing(null)} onSave={saveEdit}/>}
     {toast&&<button className="toast" onClick={()=>setToast('')}>{toast} ×</button>}
    </section></main>
