@@ -350,6 +350,15 @@ function Settings(){
   const [tab,setTab]=useState('Perusahaan');
   const [msg,setMsg]=useState('');
 
+  const [customTheme,setCustomTheme]=useState({
+    primary:'#101a33',
+    accent:'#d6ae58',
+    background:'#f6f7fb',
+    surface:'#ffffff',
+    text:'#172033',
+    border:'#d6ae58'
+  });
+
   const themes=[
     {
       id:'moon',
@@ -420,37 +429,79 @@ function Settings(){
   ];
 
   const applyTheme=(theme:any)=>{
-  const root=document.documentElement;
+    const root=document.documentElement;
 
-  root.style.setProperty('--mx-primary',theme.primary);
-  root.style.setProperty('--mx-accent',theme.accent);
-  root.style.setProperty('--mx-background',theme.background);
-  root.style.setProperty('--mx-surface',theme.surface);
-  root.style.setProperty('--mx-text',theme.text);
-  root.style.setProperty('--mx-border',theme.border);
+    root.style.setProperty('--mx-primary',theme.primary);
+    root.style.setProperty('--mx-accent',theme.accent);
+    root.style.setProperty('--mx-background',theme.background);
+    root.style.setProperty('--mx-surface',theme.surface);
+    root.style.setProperty('--mx-text',theme.text);
+    root.style.setProperty('--mx-border',theme.border);
 
-  root.style.setProperty('--blue',theme.accent);
-  root.style.setProperty('--ink',theme.text);
-  root.style.setProperty('--line',theme.border);
-  root.style.setProperty('--surface',theme.surface);
-  root.style.setProperty('--bg',theme.background);
+    root.style.setProperty('--blue',theme.accent);
+    root.style.setProperty('--ink',theme.text);
+    root.style.setProperty('--line',theme.border);
+    root.style.setProperty('--surface',theme.surface);
+    root.style.setProperty('--bg',theme.background);
 
-  setCustomTheme({
-    primary: theme.primary,
-    accent: theme.accent,
-    background: theme.background,
-    surface: theme.surface,
-    text: theme.text,
-    border: theme.border
-  });
+    setCustomTheme({
+      primary:theme.primary,
+      accent:theme.accent,
+      background:theme.background,
+      surface:theme.surface,
+      text:theme.text,
+      border:theme.border
+    });
 
-  localStorage.setItem(
-    'moonx-theme',
-    JSON.stringify(theme)
-  );
+    localStorage.setItem(
+      'moonx-theme',
+      JSON.stringify(theme)
+    );
 
-  setMsg(`Tema "${theme.name}" berhasil diterapkan.`);
-};
+    setMsg(`Tema "${theme.name}" berhasil diterapkan.`);
+  };
+
+  const updateCustomColor=(
+    key:keyof typeof customTheme,
+    value:string
+  )=>{
+    setCustomTheme(prev=>({
+      ...prev,
+      [key]:value
+    }));
+
+    const root=document.documentElement;
+
+    if(key==='primary'){
+      root.style.setProperty('--mx-primary',value);
+    }
+
+    if(key==='accent'){
+      root.style.setProperty('--mx-accent',value);
+      root.style.setProperty('--blue',value);
+    }
+
+    if(key==='background'){
+      root.style.setProperty('--mx-background',value);
+      root.style.setProperty('--bg',value);
+    }
+
+    if(key==='surface'){
+      root.style.setProperty('--mx-surface',value);
+      root.style.setProperty('--surface',value);
+    }
+
+    if(key==='text'){
+      root.style.setProperty('--mx-text',value);
+      root.style.setProperty('--ink',value);
+    }
+
+    if(key==='border'){
+      root.style.setProperty('--mx-border',value);
+      root.style.setProperty('--line',value);
+    }
+  };
+
   useEffect(()=>{
     supabase
       .from('hris_company_settings')
@@ -465,7 +516,9 @@ function Settings(){
 
     if(saved){
       try{
-        applyTheme(JSON.parse(saved));
+        const theme=JSON.parse(saved);
+
+        applyTheme(theme);
       }catch{
         applyTheme(themes[0]);
       }
@@ -477,7 +530,10 @@ function Settings(){
   const save=async()=>{
     const {error}=await supabase
       .from('hris_company_settings')
-      .upsert({...f,id:1});
+      .upsert({
+        ...f,
+        id:1
+      });
 
     setMsg(
       error
@@ -486,13 +542,51 @@ function Settings(){
     );
   };
 
+  const saveCustomTheme=()=>{
+    const theme={
+      id:'custom',
+      name:'Custom Theme',
+      description:'Tema kustom MoonXprojecT',
+      ...customTheme
+    };
+
+    applyTheme(theme);
+
+    localStorage.setItem(
+      'moonx-theme',
+      JSON.stringify(theme)
+    );
+
+    setMsg('Custom Theme berhasil disimpan.');
+  };
+
   const groups:any={
-    'Perusahaan':['company_name','currency','timezone'],
-    'Jam Kerja':['work_start','work_end','break_minutes','late_tolerance_minutes'],
-    'Payroll':['payday_day','overtime_multiplier'],
-    'Absensi':['attendance_radius_meters','auto_approve_attendance'],
-    'Notifikasi':['notify_late','notify_leave'],
-    'Keamanan':['maintenance_mode']
+    'Perusahaan':[
+      'company_name',
+      'currency',
+      'timezone'
+    ],
+    'Jam Kerja':[
+      'work_start',
+      'work_end',
+      'break_minutes',
+      'late_tolerance_minutes'
+    ],
+    'Payroll':[
+      'payday_day',
+      'overtime_multiplier'
+    ],
+    'Absensi':[
+      'attendance_radius_meters',
+      'auto_approve_attendance'
+    ],
+    'Notifikasi':[
+      'notify_late',
+      'notify_leave'
+    ],
+    'Keamanan':[
+      'maintenance_mode'
+    ]
   };
 
   const labels:any={
@@ -531,6 +625,7 @@ function Settings(){
         {Object.keys(groups).map(x=>(
           <button
             key={x}
+            type="button"
             className={tab===x?'active':''}
             onClick={()=>setTab(x)}
           >
@@ -539,6 +634,7 @@ function Settings(){
         ))}
 
         <button
+          type="button"
           className={tab==='Tampilan & Tema'?'active':''}
           onClick={()=>setTab('Tampilan & Tema')}
         >
@@ -559,7 +655,6 @@ function Settings(){
           </div>
 
           <div className="theme-grid">
-
             {themes.map(theme=>(
               <button
                 type="button"
@@ -567,14 +662,12 @@ function Settings(){
                 className="theme-card"
                 onClick={()=>applyTheme(theme)}
               >
-
                 <div
                   className="theme-preview"
                   style={{
                     background:theme.background
                   }}
                 >
-
                   <div
                     className="theme-preview-sidebar"
                     style={{
@@ -597,7 +690,6 @@ function Settings(){
                     ></div>
 
                     <div className="theme-preview-cards">
-
                       <i
                         style={{
                           background:theme.accent
@@ -608,14 +700,13 @@ function Settings(){
                         style={{
                           background:theme.primary
                         }}
-                      />
+                      ></i>
 
                       <i
                         style={{
                           background:theme.border
                         }}
-                      />
-
+                      ></i>
                     </div>
 
                     <div
@@ -626,11 +717,9 @@ function Settings(){
                     ></div>
 
                   </div>
-
                 </div>
 
                 <div className="theme-card-body">
-
                   <div>
                     <strong>
                       {theme.name}
@@ -647,280 +736,202 @@ function Settings(){
                       background:theme.accent
                     }}
                   ></span>
-
                 </div>
-
               </button>
             ))}
+          </div>
+
+          <div className="custom-theme-panel">
+
+            <div>
+              <h3>Custom Theme</h3>
+              <p>
+                Gunakan warna pilihan Anda untuk tampilan HRIS.
+              </p>
+            </div>
+
+            <div className="custom-theme-controls">
+
+              <label>
+                Primary
+                <input
+                  type="color"
+                  value={customTheme.primary}
+                  onChange={e=>
+                    updateCustomColor(
+                      'primary',
+                      e.target.value
+                    )
+                  }
+                />
+              </label>
+
+              <label>
+                Accent
+                <input
+                  type="color"
+                  value={customTheme.accent}
+                  onChange={e=>
+                    updateCustomColor(
+                      'accent',
+                      e.target.value
+                    )
+                  }
+                />
+              </label>
+
+              <label>
+                Background
+                <input
+                  type="color"
+                  value={customTheme.background}
+                  onChange={e=>
+                    updateCustomColor(
+                      'background',
+                      e.target.value
+                    )
+                  }
+                />
+              </label>
+
+              <label>
+                Surface
+                <input
+                  type="color"
+                  value={customTheme.surface}
+                  onChange={e=>
+                    updateCustomColor(
+                      'surface',
+                      e.target.value
+                    )
+                  }
+                />
+              </label>
+
+              <label>
+                Text
+                <input
+                  type="color"
+                  value={customTheme.text}
+                  onChange={e=>
+                    updateCustomColor(
+                      'text',
+                      e.target.value
+                    )
+                  }
+                />
+              </label>
+
+              <label>
+                Border
+                <input
+                  type="color"
+                  value={customTheme.border}
+                  onChange={e=>
+                    updateCustomColor(
+                      'border',
+                      e.target.value
+                    )
+                  }
+                />
+              </label>
+
+            </div>
+
+            <div className="custom-theme-actions">
+              <button
+                type="button"
+                className="primary theme-save-button"
+                onClick={saveCustomTheme}
+              >
+                Simpan Custom Theme
+              </button>
+            </div>
 
           </div>
 
-<div className="custom-theme-panel">
-
-  <div>
-    <h3>Custom Theme</h3>
-    <p>
-      Gunakan warna pilihan Anda untuk tampilan HRIS.
-    </p>
-  </div>
-
-  <div className="custom-theme-controls">
-
-    <label>
-      Primary
-      <input
-        type="color"
-        value={customTheme.primary}
-        onChange={e => {
-          const value = e.target.value;
-
-          setCustomTheme(prev => ({
-            ...prev,
-            primary: value
-          }));
-
-          document.documentElement.style.setProperty(
-            '--mx-primary',
-            value
-          );
-        }}
-      />
-    </label>
-
-    <label>
-      Accent
-      <input
-        type="color"
-        value={customTheme.accent}
-        onChange={e => {
-          const value = e.target.value;
-
-          setCustomTheme(prev => ({
-            ...prev,
-            accent: value
-          }));
-
-          document.documentElement.style.setProperty(
-            '--mx-accent',
-            value
-          );
-
-          document.documentElement.style.setProperty(
-            '--blue',
-            value
-          );
-        }}
-      />
-    </label>
-
-    <label>
-      Background
-      <input
-        type="color"
-        value={customTheme.background}
-        onChange={e => {
-          const value = e.target.value;
-
-          setCustomTheme(prev => ({
-            ...prev,
-            background: value
-          }));
-
-          document.documentElement.style.setProperty(
-            '--mx-background',
-            value
-          );
-
-          document.documentElement.style.setProperty(
-            '--bg',
-            value
-          );
-        }}
-      />
-    </label>
-
-    <label>
-      Surface
-      <input
-        type="color"
-        value={customTheme.surface}
-        onChange={e => {
-          const value = e.target.value;
-
-          setCustomTheme(prev => ({
-            ...prev,
-            surface: value
-          }));
-
-          document.documentElement.style.setProperty(
-            '--mx-surface',
-            value
-          );
-
-          document.documentElement.style.setProperty(
-            '--surface',
-            value
-          );
-        }}
-      />
-    </label>
-
-    <label>
-      Text
-      <input
-        type="color"
-        value={customTheme.text}
-        onChange={e => {
-          const value = e.target.value;
-
-          setCustomTheme(prev => ({
-            ...prev,
-            text: value
-          }));
-
-          document.documentElement.style.setProperty(
-            '--mx-text',
-            value
-          );
-
-          document.documentElement.style.setProperty(
-            '--ink',
-            value
-          );
-        }}
-      />
-    </label>
-
-    <label>
-      Border
-      <input
-        type="color"
-        value={customTheme.border}
-        onChange={e => {
-          const value = e.target.value;
-
-          setCustomTheme(prev => ({
-            ...prev,
-            border: value
-          }));
-
-          document.documentElement.style.setProperty(
-            '--mx-border',
-            value
-          );
-
-          document.documentElement.style.setProperty(
-            '--line',
-            value
-          );
-        }}
-      />
-    </label>
-
-  </div>
-
-    <div className="custom-theme-actions">
-
-    <button
-      type="button"
-      className="primary theme-save-button"
-      onClick={() => {
-        const root = document.documentElement;
-
-        root.style.setProperty('--mx-primary', customTheme.primary);
-        root.style.setProperty('--mx-accent', customTheme.accent);
-        root.style.setProperty('--mx-background', customTheme.background);
-        root.style.setProperty('--mx-surface', customTheme.surface);
-        root.style.setProperty('--mx-text', customTheme.text);
-        root.style.setProperty('--mx-border', customTheme.border);
-
-        root.style.setProperty('--blue', customTheme.accent);
-        root.style.setProperty('--ink', customTheme.text);
-        root.style.setProperty('--bg', customTheme.background);
-        root.style.setProperty('--surface', customTheme.surface);
-        root.style.setProperty('--line', customTheme.border);
-
-        localStorage.setItem(
-          'moonx-theme',
-          JSON.stringify({
-            id: 'custom',
-            name: 'Custom Theme',
-            description: 'Tema kustom MoonXprojecT',
-            ...customTheme
-          })
-        );
-
-        setMsg('Custom Theme berhasil disimpan.');
-      }}
-    >
-      Simpan Custom Theme
-    </button>
-
-  </div>
-
-</div>
-
-{Object.entries(f).map(([k, v]) => {
-  const bool = typeof v === 'boolean';
-
-  return (
-    <label key={k}>
-      {labels[k]}
-
-      {bool ? (
-        <input
-          type="checkbox"
-          checked={!!v}
-          onChange={e =>
-            setF({
-              ...f,
-              [k]: e.target.checked
-            })
-          }
-        />
+        </div>
       ) : (
-        <input
-          type={
-            [
-              'break_minutes',
-              'late_tolerance_minutes',
-              'attendance_radius_meters',
-              'overtime_multiplier'
-            ].includes(k)
-              ? 'number'
-              : k.includes('start') || k.includes('end')
-                ? 'time'
-                : 'text'
-          }
-          value={String(v ?? '')}
-          onChange={e =>
-            setF({
-              ...f,
-              [k]: [
-                'break_minutes',
-                'late_tolerance_minutes',
-                'attendance_radius_meters',
-                'overtime_multiplier'
-              ].includes(k)
-                ? Number(e.target.value)
-                : e.target.value
-            })
-          }
-        />
+
+        <div className="panel form-panel settings-content">
+
+          <div className="form-grid">
+
+            {groups[tab].map((k:string)=>{
+
+              const v=f[k];
+
+              const bool=[
+                'auto_approve_attendance',
+                'notify_late',
+                'notify_leave',
+                'maintenance_mode'
+              ].includes(k);
+
+              return (
+                <label key={k}>
+
+                  {labels[k]}
+
+                  {bool ? (
+
+                    <input
+                      type="checkbox"
+                      checked={!!v}
+                      onChange={e=>
+                        setF({
+                          ...f,
+                          [k]:e.target.checked
+                        })
+                      }
+                    />
+
+                  ) : (
+
+                    <input
+                      type={
+                        [
+                          'break_minutes',
+                          'late_tolerance_minutes',
+                          'attendance_radius_meters',
+                          'overtime_multiplier'
+                        ].includes(k)
+                          ? 'number'
+                          : k.includes('start')||k.includes('end')
+                            ? 'time'
+                            : 'text'
+                      }
+                      value={String(v??'')}
+                      onChange={e=>
+                        setF({
+                          ...f,
+                          [k]:
+                            [
+                              'break_minutes',
+                              'late_tolerance_minutes',
+                              'attendance_radius_meters',
+                              'overtime_multiplier'
+                            ].includes(k)
+                              ? Number(e.target.value)
+                              : e.target.value
+                        })
+                      }
+                    />
+
+                  )}
+
+                </label>
+              );
+            })}
+
+          </div>
+
+        </div>
       )}
-    </label>
+
+    </>
   );
-})}
-
-</div>
-
-</div>
-)}
-
-</>
-);
 }
-
 function Audit() {
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
