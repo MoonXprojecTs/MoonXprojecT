@@ -113,10 +113,10 @@
   min-height: 38px !important;
   padding: 9px 15px !important;
 
-  background: #101a33 !important;
+  background: var(--mx-primary, #101a33) !important;
   color: #ffffff !important;
 
-  border: 1px solid #d6ae58 !important;
+  border: 1px solid var(--mx-accent, #d6ae58) !important;
   border-radius: 9px !important;
 
   font-family: inherit;
@@ -160,10 +160,10 @@
 .talenta-main button.primary,
 .talenta-main button.primary-btn,
 .talenta-main button.btn-primary {
-  background: #101a33 !important;
+  background: var(--mx-primary, #101a33) !important;
   color: #ffffff !important;
 
-  border: 1px solid #d6ae58 !important;
+  border: 1px solid var(--mx-accent, #d6ae58) !important;
 
   box-shadow:
     0 3px 9px rgba(16,26,51,.18);
@@ -182,16 +182,16 @@
 
 .talenta-main button.secondary {
   background: #ffffff !important;
-  color: #101a33 !important;
+  color: var(--mx-primary, #101a33) !important;
 
-  border: 1px solid #d6ae58 !important;
+  border: 1px solid var(--mx-accent, #d6ae58) !important;
 
   box-shadow: none;
 }
 
 .talenta-main button.secondary:hover {
   background: #faf6e9 !important;
-  color: #101a33 !important;
+  color: var(--mx-primary, #101a33) !important;
   border-color: #f0cf7a !important;
 }
 
@@ -214,7 +214,7 @@
   background: #ffffff !important;
   color: #344054 !important;
 
-  border: 1px solid #d6ae58 !important;
+  border: 1px solid var(--mx-accent, #d6ae58) !important;
   border-radius: 8px !important;
 
   padding: 8px 14px !important;
@@ -231,7 +231,7 @@
 .talenta-main .branch-tabs button:hover,
 .talenta-main .branch-nav button:hover {
   background: #faf6e9 !important;
-  color: #101a33 !important;
+  color: var(--mx-primary, #101a33) !important;
   border-color: #f0cf7a !important;
 }
 
@@ -239,10 +239,10 @@
 
 .talenta-main .branch-tabs button.active,
 .talenta-main .branch-nav button.active {
-  background: #101a33 !important;
+  background: var(--mx-primary, #101a33) !important;
   color: #ffffff !important;
 
-  border: 1px solid #d6ae58 !important;
+  border: 1px solid var(--mx-accent, #d6ae58) !important;
 
   box-shadow:
     0 3px 9px rgba(16,26,51,.18);
@@ -271,9 +271,9 @@
   min-height: 38px !important;
 
   background: #ffffff !important;
-  color: #101a33 !important;
+  color: var(--mx-primary, var(--mx-primary, #101a33)) !important;
 
-  border: 1px solid #d6ae58 !important;
+  border: 1px solid var(--mx-accent, #d6ae58) !important;
   border-radius: 8px !important;
 
   padding: 8px 14px !important;
@@ -286,10 +286,10 @@
 }
 
 .talenta-main .settings button.active {
-  background: #101a33 !important;
+  background: var(--mx-primary, #101a33) !important;
   color: #ffffff !important;
 
-  border-color: #d6ae58 !important;
+  border-color: var(--mx-accent, #d6ae58) !important;
 
   box-shadow:
     0 3px 9px rgba(16,26,51,.18);
@@ -310,9 +310,9 @@
   place-items: center;
 
   background: #ffffff !important;
-  color: #101a33 !important;
+  color: var(--mx-primary, #101a33) !important;
 
-  border: 1px solid #d6ae58 !important;
+  border: 1px solid var(--mx-accent, #d6ae58) !important;
   border-radius: 9px !important;
 
   box-shadow: none;
@@ -321,7 +321,7 @@
 }
 
 .talenta-main button.icon-btn:hover {
-  background: #101a33 !important;
+  background: var(--mx-primary, #101a33) !important;
   color: #ffffff !important;
   border-color: #f0cf7a !important;
 }
@@ -332,9 +332,9 @@
 
 .talenta-main button.link-btn {
   background: #ffffff !important;
-  color: #101a33 !important;
+  color: var(--mx-primary, #101a33) !important;
 
-  border: 1px solid #d6ae58 !important;
+  border: 1px solid var(--mx-accent, #d6ae58) !important;
   border-radius: 7px !important;
 
   padding: 7px 11px !important;
@@ -345,7 +345,7 @@
 }
 
 .talenta-main button.link-btn:hover {
-  background: #101a33 !important;
+  background: var(--mx-primary, #101a33) !important;
   color: #ffffff !important;
   border-color: #f0cf7a !important;
 }
@@ -382,9 +382,9 @@
 
 .talenta-main button.quick-action {
   background: #ffffff !important;
-  color: #101a33 !important;
+  color: var(--mx-primary, #101a33) !important;
 
-  border: 1px solid #d6ae58 !important;
+  border: 1px solid var(--mx-accent, #d6ae58) !important;
   border-radius: 9px !important;
 
   padding: 10px 12px !important;
@@ -430,14 +430,14 @@
 
 .talenta-sidebar button.nav-item:hover {
   background: #f8fafc !important;
-  border-color: #d6ae58 !important;
-  color: #101a33 !important;
+  border-color: var(--mx-accent, #d6ae58) !important;
+  color: var(--mx-primary, #101a33) !important;
 }
 
 .talenta-sidebar button.nav-item.active {
   background: #f7f1dc !important;
-  border-color: #d6ae58 !important;
-  color: #101a33 !important;
+  border-color: var(--mx-accent, #d6ae58) !important;
+  color: var(--mx-primary, #101a33) !important;
 
   box-shadow: none !important;
 }
@@ -479,7 +479,7 @@
    --------------------------------------------------------- */
 
 .talenta-main button:focus-visible {
-  outline: 2px solid #d6ae58 !important;
+  outline: 2px solid var(--mx-accent, #d6ae58) !important;
   outline-offset: 2px;
 }
 
@@ -510,12 +510,12 @@
    ========================================================= */
 
 :root{
-  --mx-primary:#101a33;
-  --mx-accent:#d6ae58;
+  --mx-primary:var(--mx-primary, #101a33);
+  --mx-accent:var(--mx-accent, #d6ae58);
   --mx-background:#f6f7fb;
   --mx-surface:#ffffff;
   --mx-text:#172033;
-  --mx-border:#d6ae58;
+  --mx-border:var(--mx-accent, #d6ae58);
 }
 
 /* Theme message */
@@ -866,4 +866,239 @@
     flex:none;
   }
 
+}
+/* =========================================================
+   MOONXPROJECt CUSTOM THEME SYSTEM
+   ========================================================= */
+
+:root {
+  --mx-primary: #101a33;
+  --mx-accent: #d6ae58;
+  --mx-background: #f6f7fb;
+  --mx-surface: #ffffff;
+  --mx-text: #172033;
+  --mx-border: #d6ae58;
+
+  --blue: var(--mx-accent);
+  --ink: var(--mx-text);
+  --line: var(--mx-border);
+  --surface: var(--mx-surface);
+  --bg: var(--mx-background);
+}
+
+/* Dashboard background */
+
+.talenta-main,
+.admin-main,
+.dashboard-main,
+.page-content,
+.content-area {
+  background: var(--mx-background) !important;
+  color: var(--mx-text);
+}
+
+/* Panel */
+
+.panel,
+.card,
+.dashboard-card,
+.stat-card,
+.table-panel,
+.form-panel,
+.report-card {
+  background: var(--mx-surface) !important;
+  border-color: var(--mx-border) !important;
+}
+
+/* Headings */
+
+.page-heading h1,
+.page-heading h2,
+.page-heading h3,
+.panel h1,
+.panel h2,
+.panel h3 {
+  color: var(--mx-text);
+}
+
+/* Main buttons */
+
+button.primary,
+button.hero-primary,
+.primary,
+.btn-primary {
+  background:
+    linear-gradient(
+      135deg,
+      var(--mx-primary),
+      color-mix(
+        in srgb,
+        var(--mx-primary) 75%,
+        black
+      )
+    ) !important;
+
+  color: var(--mx-accent) !important;
+  border: 1px solid var(--mx-accent) !important;
+}
+
+/* Secondary */
+
+button.secondary,
+.secondary,
+.btn-secondary {
+  background: var(--mx-surface) !important;
+  color: var(--mx-primary) !important;
+  border: 1px solid var(--mx-border) !important;
+}
+
+/* Navigation */
+
+.talenta-sidebar {
+  background: var(--mx-primary) !important;
+}
+
+.talenta-sidebar .nav-item {
+  color: #ffffff !important;
+}
+
+.talenta-sidebar .nav-item:hover,
+.talenta-sidebar .nav-item.active {
+  background: color-mix(
+    in srgb,
+    var(--mx-accent) 18%,
+    transparent
+  ) !important;
+
+  color: var(--mx-accent) !important;
+  border-color: var(--mx-accent) !important;
+}
+
+/* Tabs */
+
+.settings-tabs button,
+.branch-tabs button,
+.branch-nav button {
+  color: var(--mx-text) !important;
+  border-color: var(--mx-border) !important;
+}
+
+.settings-tabs button.active,
+.branch-tabs button.active,
+.branch-nav button.active {
+  background: var(--mx-primary) !important;
+  color: var(--mx-accent) !important;
+  border-color: var(--mx-accent) !important;
+}
+
+/* Inputs */
+
+input,
+select,
+textarea {
+  border-color: var(--mx-border) !important;
+  color: var(--mx-text);
+  background: var(--mx-surface);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--mx-accent) !important;
+  box-shadow:
+    0 0 0 3px
+    color-mix(
+      in srgb,
+      var(--mx-accent) 18%,
+      transparent
+    ) !important;
+}
+
+/* Links */
+
+a,
+.link-btn {
+  color: var(--mx-primary) !important;
+}
+
+.link-btn:hover {
+  color: var(--mx-accent) !important;
+}
+
+/* Borders */
+
+.table-panel,
+.panel,
+.card,
+.settings-tabs,
+.theme-card,
+.custom-theme-panel {
+  border-color: var(--mx-border) !important;
+}
+
+/* Theme cards */
+
+.theme-card:hover {
+  border-color: var(--mx-accent) !important;
+  box-shadow:
+    0 12px 35px
+    color-mix(
+      in srgb,
+      var(--mx-primary) 14%,
+      transparent
+    ) !important;
+}
+
+/* Custom theme save */
+
+.theme-save-button {
+  background: var(--mx-primary) !important;
+  color: var(--mx-accent) !important;
+  border: 1px solid var(--mx-accent) !important;
+}
+
+.theme-save-button:hover {
+  background: var(--mx-accent) !important;
+  color: var(--mx-primary) !important;
+}
+
+/* Toast */
+
+.toast {
+  background: var(--mx-primary) !important;
+  color: var(--mx-accent) !important;
+  border: 1px solid var(--mx-accent) !important;
+}
+
+/* Table */
+
+table thead th {
+  background: color-mix(
+    in srgb,
+    var(--mx-primary) 7%,
+    var(--mx-surface)
+  ) !important;
+
+  color: var(--mx-text) !important;
+}
+
+table td {
+  border-color: var(--mx-border) !important;
+}
+
+/* Status / accent */
+
+.status-badge,
+.theme-color-dot {
+  border-color: var(--mx-accent) !important;
+}
+
+/* Scrollbar */
+
+::-webkit-scrollbar-thumb {
+  background: var(--mx-primary);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--mx-accent);
 }
