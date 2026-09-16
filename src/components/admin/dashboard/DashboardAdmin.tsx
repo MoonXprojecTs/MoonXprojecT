@@ -97,53 +97,57 @@ export default function DashboardAdmin(){
  useEffect(()=>{if(logged)refresh()},[logged]);
  useEffect(()=>{const read=()=>{const candidate=location.hash.replace('#/','') as MenuKey;if(candidate&&menuGroups.flatMap(g=>g.items).some(x=>x[0]===candidate)&&menuPermissionForRole(candidate,userRole,dbPerms))setMenu(candidate)};read();window.addEventListener('hashchange',read);return()=>window.removeEventListener('hashchange',read)},[userRole,dbPerms]);
  const navigate=(next:MenuKey)=>{setMenu(next);location.hash=`/${next}`;if(window.innerWidth<900)setSidebar(false)};
+  function Employees({data,onDelete,onEdit,onExport,onAdd}:{data:Karyawan[];onDelete:(k:Karyawan)=>void;onEdit:(k:Karyawan)=>void;onExport:()=>void;onAdd:()=>void}){
+
   async function confirmEmployeeEmail(employee: Karyawan) {
-  if (!employee.email) {
-    setError('Karyawan belum memiliki email.');
-    return;
-  }
-
-  try {
-    const { data: { session } } =
-      await supabase.auth.getSession();
-
-    if (!session?.access_token) {
-      setError('Sesi login tidak ditemukan.');
+    if (!employee.email) {
+      setError('Karyawan belum memiliki email.');
       return;
     }
 
-    const response = await fetch(
-      '/.netlify/functions/confirm-email',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization:
-            `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({
-          employee_id: employee.id,
-        }),
+    try {
+      const { data: { session } } =
+        await supabase.auth.getSession();
+
+      if (!session?.access_token) {
+        setError('Sesi login tidak ditemukan.');
+        return;
       }
-    );
 
-    const result = await response.json();
+      const response = await fetch(
+        '/.netlify/functions/confirm-email',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization:
+              `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({
+            employee_id: employee.id,
+          }),
+        }
+      );
 
-    if (!response.ok) {
-      throw new Error(
-        result.error || 'Konfirmasi email gagal.'
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          result.error || 'Konfirmasi email gagal.'
+        );
+      }
+
+      setToast('Email berhasil dikonfirmasi.');
+      refresh();
+
+    } catch (error: any) {
+      setError(
+        error.message || 'Konfirmasi email gagal.'
       );
     }
-
-    setToast('Email berhasil dikonfirmasi.');
-    refresh();
-
-  } catch (error: any) {
-    setError(
-      error.message || 'Konfirmasi email gagal.'
-    );
   }
-}
+
+  return <>
  async function refresh(){
   setLoading(true); setError('');
   const [k,a]=await Promise.all([
