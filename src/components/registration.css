@@ -1,0 +1,247 @@
+.registration-page {
+  min-height: calc(100vh - 74px);
+  display: grid;
+  place-items: center;
+  padding: 42px 20px;
+  background: #f5f7fb;
+}
+
+.registration-shell {
+  width: min(760px, 100%);
+}
+
+.registration-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.registration-logo {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: #0d1b35;
+  color: #d6ae58;
+  font-weight: 800;
+}
+
+.registration-brand div strong {
+  display: block;
+  color: #0d1b35;
+  font-size: 18px;
+}
+
+.registration-brand div span {
+  display: block;
+  color: #718096;
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+.registration-card {
+  background: #fff;
+  border: 1px solid #e5eaf2;
+  border-radius: 24px;
+  padding: 34px;
+  box-shadow: 0 20px 55px rgba(15, 23, 42, .08);
+}
+
+.registration-heading {
+  margin-bottom: 22px;
+}
+
+.registration-eyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .14em;
+  color: #b18432;
+  text-transform: uppercase;
+}
+
+.registration-heading h1 {
+  margin: 7px 0 6px;
+  color: #0d1b35;
+  font-size: 26px;
+}
+
+.registration-heading p {
+  margin: 0;
+  color: #667085;
+  font-size: 14px;
+}
+
+.registration-section {
+  margin-top: 24px;
+}
+
+.registration-section h3 {
+  font-size: 15px;
+  color: #0d1b35;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #e5eaf2;
+  padding-bottom: 6px;
+}
+
+.registration-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+  color: #344054;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.registration-field input,
+.registration-field textarea {
+  height: 44px;
+  border: 1px solid #d9e0ea;
+  border-radius: 11px;
+  padding: 10px 13px;
+  font: inherit;
+  font-weight: 500;
+  color: #101828;
+  outline: none;
+  background: #fff;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.registration-field textarea {
+  height: auto;
+  resize: none;
+}
+
+.registration-field input:focus,
+.registration-field textarea:focus {
+  border-color: #b18432;
+  box-shadow: 0 0 0 3px rgba(177, 132, 50, .12);
+}
+
+.registration-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.registration-role-note {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px;
+  margin: 20px 0;
+  font-size: 13px;
+  color: #475569;
+}
+
+.registration-role-note strong {
+  color: #0d1b35;
+}
+
+.registration-role-note p {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.registration-error, 
+.registration-success {
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.registration-error {
+  background: #fff1f1;
+  color: #b42318;
+  border: 1px solid #fecdca;
+}
+
+.registration-success {
+  background: #ecfdf3;
+  color: #067647;
+  border: 1px solid #abefc6;
+  text-align: center;
+  padding: 30px;
+}
+
+.registration-success h1 {
+  color: #0d1b35;
+  margin: 14px 0 8px;
+}
+
+.registration-success p {
+  color: #667085;
+  margin-bottom: 16px;
+}
+
+.registration-success-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px;
+  margin: 16px 0;
+  text-align: left;
+}
+
+.registration-success-box strong {
+  display: block;
+  color: #0d1b35;
+  font-size: 14px;
+}
+
+.registration-success-box span {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.registration-button {
+  width: 100%;
+  height: 46px;
+  border-radius: 11px;
+  border: 0;
+  background: #0d1b35;
+  color: #fff;
+  font-weight: 800;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background 0.2s;
+}
+
+.registration-button:hover {
+  background: #162a4f;
+}
+
+.registration-button:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+.registration-back {
+  width: 100%;
+  height: 44px;
+  border-radius: 11px;
+  border: 1px solid #d9e0ea;
+  background: #fff;
+  color: #344054;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.registration-back:hover {
+  background: #f8fafc;
+}
+
+@media(max-width: 650px) {
+  .registration-card {
+    padding: 24px;
+  }
+  .registration-row {
+    grid-template-columns: 1fr;
+  }
+}
