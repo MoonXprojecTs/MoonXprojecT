@@ -97,6 +97,53 @@ export default function DashboardAdmin(){
  useEffect(()=>{if(logged)refresh()},[logged]);
  useEffect(()=>{const read=()=>{const candidate=location.hash.replace('#/','') as MenuKey;if(candidate&&menuGroups.flatMap(g=>g.items).some(x=>x[0]===candidate)&&menuPermissionForRole(candidate,userRole,dbPerms))setMenu(candidate)};read();window.addEventListener('hashchange',read);return()=>window.removeEventListener('hashchange',read)},[userRole,dbPerms]);
  const navigate=(next:MenuKey)=>{setMenu(next);location.hash=`/${next}`;if(window.innerWidth<900)setSidebar(false)};
+  async function confirmEmployeeEmail(employee: Karyawan) {
+  if (!employee.email) {
+    setError('Karyawan belum memiliki email.');
+    return;
+  }
+
+  try {
+    const { data: { session } } =
+      await supabase.auth.getSession();
+
+    if (!session?.access_token) {
+      setError('Sesi login tidak ditemukan.');
+      return;
+    }
+
+    const response = await fetch(
+      '/.netlify/functions/confirm-email',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization:
+            `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          employee_id: employee.id,
+        }),
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        result.error || 'Konfirmasi email gagal.'
+      );
+    }
+
+    setToast('Email berhasil dikonfirmasi.');
+    refresh();
+
+  } catch (error: any) {
+    setError(
+      error.message || 'Konfirmasi email gagal.'
+    );
+  }
+}
  async function refresh(){
   setLoading(true); setError('');
   const [k,a]=await Promise.all([
@@ -266,7 +313,32 @@ function Quick({label,icon,onClick}:{label:string;icon:string;onClick:()=>void})
 function AttendanceMini({rows}:{rows:Absensi[]}){return <div className="table-wrap"><table><thead><tr><th>Karyawan</th><th>Tanggal</th><th>Masuk</th><th>Pulang</th><th>Status</th></tr></thead><tbody>{rows.length?rows.map((a,i)=><tr key={a.id||i}><td><b>{a.nama||'-'}</b><small>{a.id_karyawan||''}</small></td><td>{a.tanggal||'-'}</td><td className="green">{a.jam_masuk||'-'}</td><td>{a.jam_pulang||'-'}</td><td><Status value={a.status||'Hadir'}/></td></tr>):<Empty cols={5}/>}</tbody></table></div>}
 
 function Employees({data,onDelete,onEdit,onExport,onAdd}:{data:Karyawan[];onDelete:(k:Karyawan)=>void;onEdit:(k:Karyawan)=>void;onExport:()=>void;onAdd:()=>void}){
- return <><Heading title="Semua Karyawan" desc="Master data workforce yang tersimpan di Supabase." action="Tambah Karyawan" onAction={onAdd}/><div className="toolbar"><b>{data.length} karyawan</b><button className="secondary" onClick={onExport}>Export CSV</button></div><div className="panel table-panel"><div className="table-wrap"><table><thead><tr><th>Nama</th><th>ID</th><th>Jabatan</th><th>Departemen</th><th>Status</th><th>Gaji Pokok</th><th>Aksi</th></tr></thead><tbody>{data.length?data.map(k=><tr key={k.id}><td><div className="person"><div className="mini-avatar">{k.nama?.[0]||'K'}</div><b>{k.nama}</b></div></td><td>{k.id_karyawan||'-'}</td><td>{k.jabatan||'-'}</td><td>{k.departemen||'-'}</td><td><Status value={k.status_aktif===false?'Nonaktif':'Aktif'}/></td><td>{money(Number(k.gaji_pokok||0))}</td><td><div className="row-actions"><button className="link-btn" onClick={()=>onEdit(k)}>Edit</button><button className="danger-text" onClick={()=>onDelete(k)}>Hapus</button></div></td></tr>):<Empty cols={7}/>}</tbody></table></div></div></>
+ return <><Heading title="Semua Karyawan" desc="Master data workforce yang tersimpan di Supabase." action="Tambah Karyawan" onAction={onAdd}/><div className="toolbar"><b>{data.length} karyawan</b><button className="secondary" onClick={onExport}>Export CSV</button></div><div className="panel table-panel"><div className="table-wrap"><table><thead><tr><th>Nama</th><th>ID</th><th>Jabatan</th><th>Departemen</th><th>Status</th><th>Gaji Pokok</th><th>Aksi</th></tr></thead><tbody>{data.length?data.map(k=><tr key={k.id}><td><div className="person"><div className="mini-avatar">{k.nama?.[0]||'K'}</div><b>{k.nama}</b></div></td><td>{k.id_karyawan||'-'}</td><td>{k.jabatan||'-'}</td><td>{k.departemen||'-'}</td><td><Status value={k.status_aktif===false?'Nonaktif':'Aktif'}/></td><td>{money(Number(k.gaji_pokok||0))}</td><td>
+  <div className="row-actions">
+    <button
+      className="link-btn"
+      onClick={() => onEdit(k)}
+    >
+      Edit
+    </button>
+
+    {k.email && (
+      <button
+        className="link-btn"
+        onClick={() => confirmEmployeeEmail(k)}
+      >
+        Konfirmasi Email
+      </button>
+    )}
+
+    <button
+      className="danger-text"
+      onClick={() => onDelete(k)}
+    >
+      Hapus
+    </button>
+  </div>
+</td></tr>):<Empty cols={7}/>}</tbody></table></div></div></>
 }
 function AddEmployee({onDone,refresh}:{onDone:()=>void;refresh:()=>void}){
  const [f,setF]=useState({id_karyawan:'',nama:'',jabatan:'',email:'',no_telp:'',departemen:'',tanggal_masuk:'',gaji_pokok:''}),[saving,setSaving]=useState(false),[msg,setMsg]=useState('');
