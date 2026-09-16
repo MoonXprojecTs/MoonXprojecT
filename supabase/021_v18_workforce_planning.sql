@@ -1,0 +1,4 @@
+-- V18: workforce roster and capacity planning
+create table if not exists public.hris_workforce_roster(id uuid primary key default gen_random_uuid(), work_date date not null, id_karyawan text not null, shift_code text, location text, status text default 'Planned', source text default 'Manual', notes text, created_at timestamptz default now(), unique(work_date,id_karyawan));
+create table if not exists public.hris_workforce_plans(id uuid primary key default gen_random_uuid(), plan_date date not null, department text, required_headcount int default 0, planned_headcount int default 0, max_headcount int, status text default 'Draft', notes text, created_at timestamptz default now(), unique(plan_date,department));
+create index if not exists idx_v18_roster_date on public.hris_workforce_roster(work_date,shift_code);

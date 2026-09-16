@@ -1,0 +1,6 @@
+-- V14: transaction-driven, multi-level approval foundation
+create table if not exists public.hris_workflow_definitions(id uuid primary key default gen_random_uuid(), code text unique not null, name text not null, module text not null, active boolean not null default true, created_at timestamptz default now());
+create table if not exists public.hris_workflow_steps(id uuid primary key default gen_random_uuid(), workflow_id uuid references public.hris_workflow_definitions(id) on delete cascade, step_no int not null, approver_role text not null, sla_hours int not null default 24, active boolean not null default true, unique(workflow_id,step_no));
+alter table public.hris_approval_requests add column if not exists workflow_code text; alter table public.hris_approval_requests add column if not exists current_step int default 1; alter table public.hris_approval_requests add column if not exists sla_due_at timestamptz;
+create index if not exists idx_v14_approval_status on public.hris_approval_requests(status,current_step);
+insert into public.hris_workflow_definitions(code,name,module) values ('leave-standard','Leave Standard','leave'),('overtime-standard','Overtime Standard','overtime'),('payroll-standard','Payroll Standard','payroll') on conflict(code) do nothing;

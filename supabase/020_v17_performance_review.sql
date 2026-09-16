@@ -1,0 +1,4 @@
+-- V17: structured performance review cycle
+create table if not exists public.hris_performance_cycles(id uuid primary key default gen_random_uuid(), code text unique not null, name text not null, start_date date not null, end_date date not null, status text default 'Draft', created_at timestamptz default now(), check(end_date>=start_date));
+create table if not exists public.hris_performance_reviews(id uuid primary key default gen_random_uuid(), cycle_id uuid references public.hris_performance_cycles(id) on delete set null, id_karyawan text not null, period text not null, score numeric default 0, status text default 'Draft', catatan text, reviewer text, submitted_at timestamptz, completed_at timestamptz, created_at timestamptz default now());
+create index if not exists idx_v17_reviews_employee on public.hris_performance_reviews(id_karyawan,period);
