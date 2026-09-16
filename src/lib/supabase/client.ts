@@ -7,8 +7,8 @@ export const isSupabaseConfigured = Boolean(SUPABASE_URL && SUPABASE_PUBLISHABLE
 
 // Keep the public landing page renderable even before deployment environment variables are set.
 // Auth/data actions remain disabled until a real Supabase project is configured.
-const clientUrl = SUPABASE_URL || 'https://placeholder.supabase.co'
-const clientKey = SUPABASE_PUBLISHABLE_KEY || 'placeholder-anon-key'
+const clientUrl = SUPABASE_URL || 'https://wxpdrohjkglxsiwaaeaw.supabase.co'
+const clientKey = SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_edCd8qU0G785TeZd385wAQ_OW2H19Ss'
 
 export const supabase = createClient(clientUrl, clientKey, {
   auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
