@@ -136,11 +136,18 @@ export default function App() {
               </button>
 
               <button
-                className="nav-login"
-                onClick={() => navigate('admin')}
-              >
-                Login HR
-              </button>
+  className="nav-login"
+  onClick={() => navigate('admin')}
+>
+  Login HR
+</button>
+
+<button
+  className="nav-login employee-nav-login"
+  onClick={() => navigate('employee')}
+>
+  Login Karyawan
+</button>
             </nav>
 
           </header>
