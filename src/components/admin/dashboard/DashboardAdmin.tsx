@@ -331,7 +331,649 @@ function Reports({employees,attendance,onExport}:{employees:Karyawan[];attendanc
 function ReportCard({name,count,onClick}:{name:string;count:number;onClick:()=>void}){return <div className="report-card"><span>REPORT</span><h3>{name}</h3><b>{count}</b><p>record tersedia</p><button className="primary" onClick={onClick}>Export CSV</button></div>}
 function Settings(){const [f,setF]=useState<any>({company_name:'MoonXprojecT',work_start:'07:00',work_end:'16:00',break_minutes:60,payday_day:'Jumat',currency:'IDR',timezone:'Asia/Jakarta',overtime_multiplier:2,late_tolerance_minutes:10,attendance_radius_meters:100,auto_approve_attendance:false,notify_late:true,notify_leave:true,maintenance_mode:false}),[tab,setTab]=useState('Perusahaan'),[msg,setMsg]=useState('');useEffect(()=>{supabase.from('hris_company_settings').select('*').eq('id',1).maybeSingle().then(({data})=>data&&setF(data))},[]);const save=async()=>{const {error}=await supabase.from('hris_company_settings').upsert({...f,id:1});setMsg(error?error.message:'Pengaturan tersimpan.');};const groups={Perusahaan:['company_name','currency','timezone'],'Jam Kerja':['work_start','work_end','break_minutes','late_tolerance_minutes'],Payroll:['payday_day','overtime_multiplier'],Absensi:['attendance_radius_meters','auto_approve_attendance'],Notifikasi:['notify_late','notify_leave'],Keamanan:['maintenance_mode']} as any;const labels:any={company_name:'Nama Perusahaan',currency:'Mata Uang',timezone:'Zona Waktu',work_start:'Jam Masuk',work_end:'Jam Pulang',break_minutes:'Istirahat (menit)',late_tolerance_minutes:'Toleransi Terlambat (menit)',payday_day:'Hari Gajian',overtime_multiplier:'Pengali Lembur',attendance_radius_meters:'Radius Absensi (meter)',auto_approve_attendance:'Auto Approve Absensi',notify_late:'Notifikasi Keterlambatan',notify_leave:'Notifikasi Cuti',maintenance_mode:'Mode Maintenance'};return <><Heading title="Pengaturan" desc="Konfigurasi perusahaan, jam kerja, payroll, absensi, notifikasi, dan keamanan." action="Simpan Perubahan" onAction={save}/>{msg&&<div className="alert">{msg}</div>}<div className="settings-tabs">{Object.keys(groups).map(x=><button key={x} className={tab===x?'active':''} onClick={()=>setTab(x)}>{x}</button>)}</div><div className="panel form-panel settings-content"><div className="form-grid">{groups[tab].map((k:string)=>{const v=f[k];const bool=['auto_approve_attendance','notify_late','notify_leave','maintenance_mode'].includes(k);return <label key={k}>{labels[k]}{bool?<input type="checkbox" checked={!!v} onChange={e=>setF({...f,[k]:e.target.checked})}/>:<input type={['break_minutes','late_tolerance_minutes','attendance_radius_meters','overtime_multiplier'].includes(k)?'number':k.includes('start')||k.includes('end')?'time':'text'} value={String(v??'')} onChange={e=>setF({...f,[k]:['break_minutes','late_tolerance_minutes','attendance_radius_meters','overtime_multiplier'].includes(k)?Number(e.target.value):e.target.value})}/>}</label>})}</div></div></>}
 
-function Audit(){const [rows,setRows]=useState<any[]>([]);useEffect(()=>{supabase.from('hris_audit_logs').select('*').order('created_at',{ascending:false}).limit(200).then(({data})=>setRows(data||[]))},[]);return <><Heading title="Audit Log" desc="Aktivitas yang benar-benar tercatat di database."/><div className="panel table-panel"><div className="table-wrap"><table><thead><tr><th>Waktu</th><th>Actor</th><th>Action</th><th>Module</th><th>Detail</th></tr></thead><tbody>{rows.length?rows.map(r=><tr key={r.id}><td>{r.created_at?.replace('T',' ').slice(0,19)}</td><td>{r.actor_email||'-'}</td><td>{r.action}</td><td>{r.module||'-'}</td><td>{JSON.stringify(r.details||{})}</td></tr>):<Empty cols={5}/>}</tbody></table></div></div></>}
+function Audit() {
+  const [rows, setRows] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [actionFilter, setActionFilter] = useState('ALL');
+  const [moduleFilter, setModuleFilter] = useState('ALL');
+  const [selected, setSelected] = useState<any | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadAudit = async () => {
+      setLoading(true);
+
+      const { data, error } = await supabase
+        .from('hris_audit_logs')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(500);
+
+      if (mounted) {
+        setRows(error ? [] : data || []);
+        setLoading(false);
+      }
+    };
+
+    loadAudit();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const normalize = (value: any) => {
+    if (value === null || value === undefined) return '-';
+
+    if (typeof value === 'object') {
+      try {
+        return JSON.stringify(value);
+      } catch {
+        return String(value);
+      }
+    }
+
+    return String(value);
+  };
+
+  const getChangedFields = (row: any) => {
+    const oldValue =
+      row?.old ??
+      row?.old_data ??
+      row?.old_values ??
+      row?.metadata?.old ??
+      {};
+
+    const newValue =
+      row?.new ??
+      row?.new_data ??
+      row?.new_values ??
+      row?.metadata?.new ??
+      {};
+
+    const oldObj =
+      oldValue && typeof oldValue === 'object' ? oldValue : {};
+
+    const newObj =
+      newValue && typeof newValue === 'object' ? newValue : {};
+
+    const keys = Array.from(
+      new Set([...Object.keys(oldObj), ...Object.keys(newObj)])
+    );
+
+    return keys
+      .filter(
+        (key) =>
+          JSON.stringify(oldObj[key]) !== JSON.stringify(newObj[key])
+      )
+      .map((key) => ({
+        field: key,
+        oldValue: oldObj[key],
+        newValue: newObj[key],
+      }));
+  };
+
+  const formatDate = (value: any) => {
+    if (!value) return '-';
+
+    try {
+      return new Date(value).toLocaleString('id-ID', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      });
+    } catch {
+      return String(value);
+    }
+  };
+
+  const actionLabel = (action: any) => {
+    const value = String(action || '-').toUpperCase();
+
+    if (value === 'INSERT' || value === 'CREATE') return 'CREATE';
+    if (value === 'UPDATE') return 'UPDATE';
+    if (value === 'DELETE') return 'DELETE';
+
+    return value;
+  };
+
+  const actionClass = (action: any) => {
+    const value = actionLabel(action);
+
+    if (value === 'CREATE') return 'audit-badge audit-create';
+    if (value === 'UPDATE') return 'audit-badge audit-update';
+    if (value === 'DELETE') return 'audit-badge audit-delete';
+
+    return 'audit-badge';
+  };
+
+  const filteredRows = rows.filter((row) => {
+    const action = actionLabel(row.action);
+    const module = String(row.module || '-');
+
+    const keyword = search.trim().toLowerCase();
+
+    const searchable = [
+      row.actor_email,
+      row.actor_name,
+      row.action,
+      row.module,
+      row.description,
+      row.entity_id,
+      row.entity_type,
+      JSON.stringify(row.details || {}),
+      JSON.stringify(row.old || {}),
+      JSON.stringify(row.new || {}),
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
+
+    const matchesSearch =
+      !keyword || searchable.includes(keyword);
+
+    const matchesAction =
+      actionFilter === 'ALL' || action === actionFilter;
+
+    const matchesModule =
+      moduleFilter === 'ALL' || module === moduleFilter;
+
+    return matchesSearch && matchesAction && matchesModule;
+  });
+
+  const modules = Array.from(
+    new Set(
+      rows
+        .map((row) => String(row.module || '-'))
+        .filter(Boolean)
+    )
+  );
+
+  return (
+    <>
+      <Heading
+        title="Audit Log"
+        desc="Riwayat aktivitas dan perubahan data yang tercatat di database."
+      />
+
+      <div className="panel" style={{ marginBottom: 16 }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns:
+              'minmax(220px, 1fr) 180px 180px auto',
+            gap: 10,
+            alignItems: 'center',
+          }}
+        >
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Cari actor, action, module, ID..."
+            style={{
+              width: '100%',
+              padding: '11px 13px',
+              borderRadius: 10,
+              border: '1px solid #d9dee8',
+              outline: 'none',
+            }}
+          />
+
+          <select
+            value={actionFilter}
+            onChange={(e) => setActionFilter(e.target.value)}
+            style={{
+              padding: '11px 13px',
+              borderRadius: 10,
+              border: '1px solid #d9dee8',
+              background: '#fff',
+            }}
+          >
+            <option value="ALL">Semua Action</option>
+            <option value="CREATE">CREATE</option>
+            <option value="UPDATE">UPDATE</option>
+            <option value="DELETE">DELETE</option>
+          </select>
+
+          <select
+            value={moduleFilter}
+            onChange={(e) => setModuleFilter(e.target.value)}
+            style={{
+              padding: '11px 13px',
+              borderRadius: 10,
+              border: '1px solid #d9dee8',
+              background: '#fff',
+            }}
+          >
+            <option value="ALL">Semua Module</option>
+            {modules.map((module) => (
+              <option key={module} value={module}>
+                {module}
+              </option>
+            ))}
+          </select>
+
+          <div
+            style={{
+              fontSize: 13,
+              color: '#667085',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {filteredRows.length} aktivitas
+          </div>
+        </div>
+      </div>
+
+      <div className="panel table-panel">
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Waktu</th>
+                <th>Actor</th>
+                <th>Action</th>
+                <th>Module</th>
+                <th>Entity</th>
+                <th>Perubahan</th>
+                <th style={{ textAlign: 'center' }}>Detail</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td
+                    colSpan={7}
+                    style={{
+                      textAlign: 'center',
+                      padding: 30,
+                    }}
+                  >
+                    Memuat Audit Log...
+                  </td>
+                </tr>
+              ) : filteredRows.length ? (
+                filteredRows.map((row) => {
+                  const changes = getChangedFields(row);
+
+                  return (
+                    <tr key={row.id}>
+                      <td style={{ whiteSpace: 'nowrap' }}>
+                        {formatDate(row.created_at)}
+                      </td>
+
+                      <td>
+                        <div
+                          style={{
+                            fontWeight: 600,
+                            color: '#101828',
+                          }}
+                        >
+                          {row.actor_email ||
+                            row.actor_name ||
+                            '-'}
+                        </div>
+                      </td>
+
+                      <td>
+                        <span className={actionClass(row.action)}>
+                          {actionLabel(row.action)}
+                        </span>
+                      </td>
+
+                      <td>
+                        {row.module || '-'}
+                      </td>
+
+                      <td>
+                        <div>
+                          <strong>
+                            {row.entity_type || '-'}
+                          </strong>
+                        </div>
+
+                        {row.entity_id && (
+                          <small
+                            style={{
+                              color: '#667085',
+                              wordBreak: 'break-all',
+                            }}
+                          >
+                            {row.entity_id}
+                          </small>
+                        )}
+                      </td>
+
+                      <td>
+                        {changes.length ? (
+                          <div
+                            style={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: 4,
+                            }}
+                          >
+                            {changes
+                              .slice(0, 3)
+                              .map((change) => (
+                                <div
+                                  key={change.field}
+                                  style={{
+                                    fontSize: 12,
+                                  }}
+                                >
+                                  <strong>
+                                    {change.field}
+                                  </strong>
+                                  :{' '}
+                                  <span
+                                    style={{
+                                      color: '#b42318',
+                                    }}
+                                  >
+                                    {normalize(
+                                      change.oldValue
+                                    )}
+                                  </span>
+                                  {' → '}
+                                  <span
+                                    style={{
+                                      color: '#027a48',
+                                    }}
+                                  >
+                                    {normalize(
+                                      change.newValue
+                                    )}
+                                  </span>
+                                </div>
+                              ))}
+
+                            {changes.length > 3 && (
+                              <small
+                                style={{
+                                  color: '#667085',
+                                }}
+                              >
+                                +{changes.length - 3} perubahan
+                                lainnya
+                              </small>
+                            )}
+                          </div>
+                        ) : (
+                          <span
+                            style={{
+                              color: '#98a2b3',
+                            }}
+                          >
+                            Tidak ada perubahan field
+                          </span>
+                        )}
+                      </td>
+
+                      <td style={{ textAlign: 'center' }}>
+                        <button
+                          type="button"
+                          onClick={() => setSelected(row)}
+                          style={{
+                            border: '1px solid #d0d5dd',
+                            background: '#fff',
+                            borderRadius: 8,
+                            padding: '7px 11px',
+                            cursor: 'pointer',
+                            fontWeight: 600,
+                          }}
+                        >
+                          Detail
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <Empty cols={7} />
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {selected && (
+        <div
+          onClick={() => setSelected(null)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(15, 23, 42, 0.45)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 20,
+            zIndex: 9999,
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: 'min(1000px, 100%)',
+              maxHeight: '85vh',
+              overflow: 'auto',
+              background: '#fff',
+              borderRadius: 16,
+              boxShadow: '0 20px 60px rgba(0,0,0,.2)',
+              padding: 24,
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: 20,
+              }}
+            >
+              <div>
+                <h2
+                  style={{
+                    margin: 0,
+                    fontSize: 20,
+                  }}
+                >
+                  Audit Detail
+                </h2>
+
+                <div
+                  style={{
+                    marginTop: 5,
+                    color: '#667085',
+                    fontSize: 13,
+                  }}
+                >
+                  {formatDate(selected.created_at)}
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setSelected(null)}
+                style={{
+                  border: 'none',
+                  background: '#f2f4f7',
+                  borderRadius: 8,
+                  padding: '8px 12px',
+                  cursor: 'pointer',
+                }}
+              >
+                Tutup
+              </button>
+            </div>
+
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns:
+                  'repeat(4, minmax(0, 1fr))',
+                gap: 12,
+                marginBottom: 20,
+              }}
+            >
+              <div>
+                <small>Actor</small>
+                <div style={{ fontWeight: 600 }}>
+                  {selected.actor_email ||
+                    selected.actor_name ||
+                    '-'}
+                </div>
+              </div>
+
+              <div>
+                <small>Action</small>
+                <div style={{ marginTop: 5 }}>
+                  <span
+                    className={actionClass(selected.action)}
+                  >
+                    {actionLabel(selected.action)}
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <small>Module</small>
+                <div style={{ fontWeight: 600 }}>
+                  {selected.module || '-'}
+                </div>
+              </div>
+
+              <div>
+                <small>Entity</small>
+                <div style={{ fontWeight: 600 }}>
+                  {selected.entity_type || '-'}
+                </div>
+              </div>
+            </div>
+
+            <h3
+              style={{
+                margin: '0 0 12px',
+                fontSize: 16,
+              }}
+            >
+              Perubahan Data
+            </h3>
+
+            <div
+              style={{
+                border: '1px solid #eaecf0',
+                borderRadius: 12,
+                overflow: 'hidden',
+              }}
+            >
+              <table>
+                <thead>
+                  <tr>
+                    <th>Field</th>
+                    <th>OLD VALUE</th>
+                    <th>NEW VALUE</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {getChangedFields(selected).length ? (
+                    getChangedFields(selected).map(
+                      (change) => (
+                        <tr key={change.field}>
+                          <td>
+                            <strong>
+                              {change.field}
+                            </strong>
+                          </td>
+
+                          <td>
+                            <span
+                              style={{
+                                color: '#b42318',
+                                wordBreak: 'break-word',
+                              }}
+                            >
+                              {normalize(
+                                change.oldValue
+                              )}
+                            </span>
+                          </td>
+
+                          <td>
+                            <span
+                              style={{
+                                color: '#027a48',
+                                wordBreak: 'break-word',
+                              }}
+                            >
+                              {normalize(
+                                change.newValue
+                              )}
+                            </span>
+                          </td>
+                        </tr>
+                      )
+                    )
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan={3}
+                        style={{
+                          textAlign: 'center',
+                          padding: 20,
+                        }}
+                      >
+                        Tidak ada perubahan field.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {selected.details && (
+              <details style={{ marginTop: 20 }}>
+                <summary
+                  style={{
+                    cursor: 'pointer',
+                    fontWeight: 600,
+                  }}
+                >
+                  Raw Details
+                </summary>
+
+                <pre
+                  style={{
+                    marginTop: 10,
+                    background: '#101828',
+                    color: '#f8fafc',
+                    padding: 15,
+                    borderRadius: 10,
+                    overflow: 'auto',
+                    fontSize: 12,
+                  }}
+                >
+                  {JSON.stringify(
+                    selected.details,
+                    null,
+                    2
+                  )}
+                </pre>
+              </details>
+            )}
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
 function Notifications(){const [rows,setRows]=useState<any[]>([]),[loading,setLoading]=useState(true);const load=async()=>{setLoading(true);const {data}=await supabase.from('hris_notifications').select('*').order('created_at',{ascending:false}).limit(100);setRows(data||[]);setLoading(false)};useEffect(()=>{load()},[]);const mark=async(id:string)=>{await supabase.from('hris_notifications').update({is_read:true}).eq('id',id);load()};return <><Heading title="Notifikasi" desc="Pusat pemberitahuan HRIS untuk approval, cuti, payroll, dan aktivitas penting."/><div className="panel table-panel"><div className="panel-head"><div><h2>Inbox HR</h2><p>{rows.filter(r=>!r.is_read).length} belum dibaca</p></div><button className="secondary" onClick={load}>Refresh</button></div><div className="notification-list">{loading?<div className="loading">Memuat…</div>:rows.length?rows.map(r=><button key={r.id} className={`notification-item ${r.is_read?'read':''}`} onClick={()=>mark(r.id)}><span className="notification-dot"/><span><b>{r.title}</b><small>{r.message}</small><em>{r.created_at?.replace('T',' ').slice(0,19)}</em></span></button>):<div className="empty-module"><h3>Tidak ada notifikasi</h3><p>Notifikasi sistem akan muncul di sini.</p></div>}</div></div></>}
 function SystemHealth(){const [h,setH]=useState<any>(null),[err,setErr]=useState('');const load=async()=>{const {data,error}=await supabase.from('hris_system_health').select('*').maybeSingle();if(error)setErr(error.message);else setH(data)};useEffect(()=>{load()},[]);const cards=[['active_employees','Karyawan Aktif'],['pending_leave','Cuti Menunggu'],['pending_overtime','Lembur Menunggu'],['pending_payroll','Payroll Menunggu'],['pending_approvals','Approval Menunggu'],['unread_notifications','Notifikasi Belum Dibaca']];return <><Heading title="System Health" desc="Ringkasan kesehatan operasional HRIS dari database." action="Refresh" onAction={load}/>{err&&<div className="alert">{err}</div>}<div className="mini-kpi-row">{cards.map(([k,l])=><div className="stat-card" key={k}><span>{l}</span><strong>{h?.[k]??'—'}</strong></div>)}</div><div className="panel"><h3>Status layanan</h3><p>Database: <b>{h?'Operational':'Checking…'}</b></p><p>Terakhir diperiksa: {h?.checked_at?.replace('T',' ').slice(0,19)||'—'}</p></div></>}
 
