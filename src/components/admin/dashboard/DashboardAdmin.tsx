@@ -8,7 +8,7 @@ import '../../../styles/admin/admin.css';
 import MasterData from '../employee/MasterData';
 import { PayrollEnterprise, RecruitmentEnterprise, RoleEditorEnterprise, ApprovalCenter } from '../enterprise/EnterpriseModules';
 import { PayrollEngineV9 } from '../payroll/PayrollEngineV9';
-import Employee360 from '../employees/Employee360';
+import Employee360 from '../employee/Employee360';
 import HRISCore from '../core/HRISCore';
 import ProductionHR from '../payroll/ProductionHR';
 import EnterpriseV20 from '../enterprise/EnterpriseV20';
