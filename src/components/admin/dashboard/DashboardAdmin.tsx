@@ -33,7 +33,7 @@ type Absensi = {
 type MenuKey =
  | 'overview'|'employees'|'employee-360'|'employee-add'|'organization'|'attendance'|'attendance-today'|'late'|'leave'|'overtime'|'selfie'
  | 'schedule'|'shift'|'holiday'|'leave-request'|'leave-balance'|'payroll'|'payroll-components'|'payroll-overtime'|'payslip'
- | 'hr-operations'|'production-hr'|'payroll-engine'|'performance'|'kpi'|'recruitment'|'candidates'|'reports'|'settings'|'roles'|'audit'|'approvals'|'notifications'|'system-health'|'security-v21'|'payroll-production-v22'|'recruitment-v25'|'enterprise-v26'|'enterprise-v27'|'enterprise-v28'|'enterprise-v29'|'enterprise-v30'|'enterprise-v31'|'enterprise-v32'|'enterprise-v33'|'enterprise-v34'|'enterprise-v35'|'payroll-indonesia-v23';
+ | 'hr-operations'|'production-hr'|'payroll-engine'|'performance'|'kpi'|'recruitment'|'candidates'|'reports'|'settings'|'roles'|'audit'|'approvals'|'notifications'|'system-health'|'security-v21'|'payroll-production-v22'|'recruitment-v25'|'enterprise-v20'|'enterprise-v26'|'enterprise-v27'|'enterprise-v28'|'enterprise-v29'|'enterprise-v30'|'enterprise-v31'|'enterprise-v32'|'enterprise-v33'|'enterprise-v34'|'enterprise-v35'|'payroll-indonesia-v23';
 
 const money=(n:number)=>rupiah(n);
 const isoToday=()=>new Date().toISOString().slice(0,10);
@@ -47,7 +47,7 @@ const menuGroups: {title:string;items: readonly [MenuKey,string,string][]}[] = [
  {title:'TALENT',items:[['performance','Performance','arrow'],['kpi','KPI & Target','kpi'],['recruitment-v25','Recruitment ATS Enterprise','recruitment'],['recruitment','Recruitment Legacy','recruitment'],['candidates','Kandidat','users']]},
  {title:'ENTERPRISE SUITE',items:[['enterprise-v26','Documents & Compliance','request'],['enterprise-v27','Performance & KPI','kpi'],['enterprise-v28','HR Analytics & BI','kpi'],['enterprise-v29','HR Inbox','bell'],['enterprise-v30','ESS Enterprise','users'],['enterprise-v31','QA & Testing','check'],['enterprise-v32','Production Optimization','settings'],['enterprise-v33','Multi-Company','org'],['enterprise-v34','API & Integrations','settings'],['enterprise-v35','AI HR & Automation','kpi']]},
  {title:'REPORTING',items:[['reports','Laporan','report']]},
- {title:'SYSTEM',items:[['enterprise-v26','Enterprise Command Center','org'],['payroll-indonesia-v23','Payroll Indonesia Compliance','payroll'],['security-v21','Security Center','health'],['approvals','Pusat Persetujuan','check'],['notifications','Notifikasi','bell'],['system-health','System Health','health'],['settings','Pengaturan','settings'],['roles','Role & Permission','users'],['audit','Audit Log','request']]}
+ {title:'SYSTEM',items:[['enterprise-v20','Enterprise Command Center','org'],['payroll-indonesia-v23','Payroll Indonesia Compliance','payroll'],['security-v21','Security Center','health'],['approvals','Pusat Persetujuan','check'],['notifications','Notifikasi','bell'],['system-health','System Health','health'],['settings','Pengaturan','settings'],['roles','Role & Permission','users'],['audit','Audit Log','request']]}
 ] as const;
 
 const rolePermissions: Record<string,string[]> = {'Super Admin':['*'],'Admin':['people','attendance','schedule','leave','payroll','talent','reports','system'],'HRD':['people','attendance','schedule','leave','talent','reports'],'Payroll':['people.read','attendance.read','payroll','reports.payroll'],'Supervisor':['people.read','attendance.read','schedule.read','leave.read','leave.approve','reports.attendance'],'Karyawan':[]};
