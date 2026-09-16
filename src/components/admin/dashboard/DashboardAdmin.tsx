@@ -5,7 +5,7 @@ import { signIn, signOut } from '../../../lib/auth';
 import { rupiah } from '../../../lib/hris';
 import { canDelete, canWrite, hasPermission } from '../../../lib/security';
 import '../../../styles/admin/admin.css';
-import MasterData from '../employees/MasterData';
+import MasterData from '../employee/MasterData';
 import { PayrollEnterprise, RecruitmentEnterprise, RoleEditorEnterprise, ApprovalCenter } from '../enterprise/EnterpriseModules';
 import { PayrollEngineV9 } from '../payroll/PayrollEngineV9';
 import Employee360 from '../employees/Employee360';
