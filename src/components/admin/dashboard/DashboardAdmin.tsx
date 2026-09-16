@@ -1,5 +1,5 @@
 import PayrollIndonesiaV23 from '../payroll/PayrollIndonesiaV23';
-import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type FormEvent, type ReactNode, type CSSProperties } from 'react';
 import { isSupabaseConfigured, supabase } from '../../../lib/supabase/client';
 import { signIn, signOut } from '../../../lib/auth';
 import { rupiah } from '../../../lib/hris';
@@ -97,8 +97,6 @@ export default function DashboardAdmin(){
  useEffect(()=>{if(logged)refresh()},[logged]);
  useEffect(()=>{const read=()=>{const candidate=location.hash.replace('#/','') as MenuKey;if(candidate&&menuGroups.flatMap(g=>g.items).some(x=>x[0]===candidate)&&menuPermissionForRole(candidate,userRole,dbPerms))setMenu(candidate)};read();window.addEventListener('hashchange',read);return()=>window.removeEventListener('hashchange',read)},[userRole,dbPerms]);
  const navigate=(next:MenuKey)=>{setMenu(next);location.hash=`/${next}`;if(window.innerWidth<900)setSidebar(false)};
-  function Employees({data,onDelete,onEdit,onExport,onAdd}:{data:Karyawan[];onDelete:(k:Karyawan)=>void;onEdit:(k:Karyawan)=>void;onExport:()=>void;onAdd:()=>void}){
-
   async function confirmEmployeeEmail(employee: Karyawan) {
     if (!employee.email) {
       setError('Karyawan belum memiliki email.');
@@ -147,7 +145,6 @@ export default function DashboardAdmin(){
     }
   }
 
-  return <>
  async function refresh(){
   setLoading(true); setError('');
   const [k,a]=await Promise.all([
@@ -251,7 +248,7 @@ export default function DashboardAdmin(){
   <main className="talenta-main"><header className="topbar"><button className="icon-btn" aria-label="Buka menu" onClick={()=>setSidebar(v=>!v)}><Icon name="menu"/></button><div className="crumb"><span>MoonXprojecT</span><b>/</b>{activeLabel}</div><div className="top-actions"><div className="search-global"><span><Icon name="search"/></span><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Cari data..."/></div><button className="icon-btn" aria-label="Muat ulang" onClick={()=>refresh()}><Icon name="refresh"/></button><div className="avatar">HR</div></div></header>
    <section className="page">{loading&&<div className="loading">Memuat data…</div>}{error&&<div className="alert">{error}</div>}
     {menu==='overview'&&<Overview employees={employees} attendance={attendance} present={present} late={late} payroll={payroll} onNavigate={navigate}/>}
-    {menu==='employees'&&<Employees data={filtered} onDelete={removeEmployee} onEdit={setEditing} onExport={()=>exportCsv(employees as any,'database-karyawan.csv')} onAdd={()=>navigate('employee-add')}/>}
+    {menu==='employees'&&<Employees data={filtered} onDelete={removeEmployee} onEdit={setEditing} onExport={()=>exportCsv(employees as any,'database-karyawan.csv')} onAdd={()=>navigate('employee-add')} onConfirmEmail={confirmEmployeeEmail}/> }
     {menu==='employee-360'&&<Employee360 employees={employees}/>}
     {menu==='employee-add'&&<AddEmployee refresh={refresh} onDone={()=>navigate('employees')}/>} {menu==='hr-operations'&&<HRISCore employees={employees}/>} {menu==='production-hr'&&<ProductionHR employees={employees}/>} 
     {menu==='organization'&&<MasterData initialTab="cabang"/>}
@@ -302,7 +299,7 @@ function Overview({employees,attendance,present,late,payroll,onNavigate}:{employ
    </div>
    <div className="panel attendance-health">
     <div className="panel-head"><div><span className="eyebrow">TODAY</span><h2>Attendance Health</h2><p>Status kehadiran hari ini.</p></div></div>
-    <div className="health-ring" style={{'--rate':`${attendanceRate*3.6}deg`} as React.CSSProperties}><div><strong>{attendanceRate}%</strong><small>Hadir</small></div></div>
+    <div className="health-ring" style={{'--rate':`${attendanceRate*3.6}deg`} as CSSProperties}><div><strong>{attendanceRate}%</strong><small>Hadir</small></div></div>
     <div className="health-legend"><div><i className="dot present"/><span>Hadir</span><b>{present}</b></div><div><i className="dot late"/><span>Terlambat</span><b>{late}</b></div><div><i className="dot absent"/><span>Belum tercatat</span><b>{absent}</b></div></div>
    </div>
   </div>
@@ -316,7 +313,7 @@ function Stat({title,value,hint,icon}:{title:string;value:string;hint:string;ico
 function Quick({label,icon,onClick}:{label:string;icon:string;onClick:()=>void}){return <button className="quick-action" onClick={onClick}><span className="quick-icon"><Icon name={icon}/></span>{label}<span aria-hidden="true">›</span></button>}
 function AttendanceMini({rows}:{rows:Absensi[]}){return <div className="table-wrap"><table><thead><tr><th>Karyawan</th><th>Tanggal</th><th>Masuk</th><th>Pulang</th><th>Status</th></tr></thead><tbody>{rows.length?rows.map((a,i)=><tr key={a.id||i}><td><b>{a.nama||'-'}</b><small>{a.id_karyawan||''}</small></td><td>{a.tanggal||'-'}</td><td className="green">{a.jam_masuk||'-'}</td><td>{a.jam_pulang||'-'}</td><td><Status value={a.status||'Hadir'}/></td></tr>):<Empty cols={5}/>}</tbody></table></div>}
 
-function Employees({data,onDelete,onEdit,onExport,onAdd}:{data:Karyawan[];onDelete:(k:Karyawan)=>void;onEdit:(k:Karyawan)=>void;onExport:()=>void;onAdd:()=>void}){
+function Employees({data,onDelete,onEdit,onExport,onAdd,onConfirmEmail}:{data:Karyawan[];onDelete:(k:Karyawan)=>void;onEdit:(k:Karyawan)=>void;onExport:()=>void;onAdd:()=>void;onConfirmEmail:(k:Karyawan)=>void}){
  return <><Heading title="Semua Karyawan" desc="Master data workforce yang tersimpan di Supabase." action="Tambah Karyawan" onAction={onAdd}/><div className="toolbar"><b>{data.length} karyawan</b><button className="secondary" onClick={onExport}>Export CSV</button></div><div className="panel table-panel"><div className="table-wrap"><table><thead><tr><th>Nama</th><th>ID</th><th>Jabatan</th><th>Departemen</th><th>Status</th><th>Gaji Pokok</th><th>Aksi</th></tr></thead><tbody>{data.length?data.map(k=><tr key={k.id}><td><div className="person"><div className="mini-avatar">{k.nama?.[0]||'K'}</div><b>{k.nama}</b></div></td><td>{k.id_karyawan||'-'}</td><td>{k.jabatan||'-'}</td><td>{k.departemen||'-'}</td><td><Status value={k.status_aktif===false?'Nonaktif':'Aktif'}/></td><td>{money(Number(k.gaji_pokok||0))}</td><td>
   <div className="row-actions">
     <button
@@ -329,7 +326,7 @@ function Employees({data,onDelete,onEdit,onExport,onAdd}:{data:Karyawan[];onDele
     {k.email && (
       <button
         className="link-btn"
-        onClick={() => confirmEmployeeEmail(k)}
+        onClick={() => onConfirmEmail(k)}
       >
         Konfirmasi Email
       </button>
