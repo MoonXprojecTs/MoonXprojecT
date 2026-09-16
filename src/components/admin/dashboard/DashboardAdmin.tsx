@@ -581,80 +581,195 @@ function Settings(){
     }
   ];
 
-  const applyTheme=(theme:any)=>{
-    const root=document.documentElement;
+  const applyTheme = (theme: any) => {
+  const root = document.documentElement;
 
-    root.style.setProperty('--mx-primary',theme.primary);
-    root.style.setProperty('--mx-accent',theme.accent);
-    root.style.setProperty('--mx-background',theme.background);
-    root.style.setProperty('--mx-surface',theme.surface);
-    root.style.setProperty('--mx-text',theme.text);
-    root.style.setProperty('--mx-border',theme.border);
+  const primary =
+    theme.primary || '#101a33';
 
-    root.style.setProperty('--blue',theme.accent);
-    root.style.setProperty('--ink',theme.text);
-    root.style.setProperty('--line',theme.border);
-    root.style.setProperty('--surface',theme.surface);
-    root.style.setProperty('--bg',theme.background);
+  const accent =
+    theme.accent || '#d6ae58';
 
-    setCustomTheme({
-      primary:theme.primary,
-      accent:theme.accent,
-      background:theme.background,
-      surface:theme.surface,
-      text:theme.text,
-      border:theme.border
-    });
+  const background =
+    theme.background || '#f6f7fb';
 
-    localStorage.setItem(
-      'moonx-theme',
-      JSON.stringify(theme)
+  const surface =
+    theme.surface || '#ffffff';
+
+  const text =
+    theme.text || '#172033';
+
+  const border =
+    theme.border || accent;
+
+  root.style.setProperty(
+    '--mx-primary',
+    primary
+  );
+
+  root.style.setProperty(
+    '--mx-accent',
+    accent
+  );
+
+  root.style.setProperty(
+    '--mx-background',
+    background
+  );
+
+  root.style.setProperty(
+    '--mx-surface',
+    surface
+  );
+
+  root.style.setProperty(
+    '--mx-text',
+    text
+  );
+
+  root.style.setProperty(
+    '--mx-border',
+    border
+  );
+
+  /*
+   * Compatibility dengan CSS lama
+   */
+  root.style.setProperty(
+    '--blue',
+    accent
+  );
+
+  root.style.setProperty(
+    '--blue2',
+    primary
+  );
+
+  root.style.setProperty(
+    '--blue-soft',
+    background
+  );
+
+  root.style.setProperty(
+    '--ink',
+    text
+  );
+
+  root.style.setProperty(
+    '--line',
+    border
+  );
+
+  root.style.setProperty(
+    '--surface',
+    surface
+  );
+
+  root.style.setProperty(
+    '--bg',
+    background
+  );
+
+  setCustomTheme({
+    primary,
+    accent,
+    background,
+    surface,
+    text,
+    border,
+  });
+
+  localStorage.setItem(
+    'moonx-theme',
+    JSON.stringify({
+      ...theme,
+      primary,
+      accent,
+      background,
+      surface,
+      text,
+      border,
+    })
+  );
+
+  setMsg(
+    `Tema "${theme.name || 'Custom Theme'}" berhasil diterapkan.`
+  );
+};
+  const updateCustomColor = (
+  key: keyof typeof customTheme,
+  value: string
+) => {
+  setCustomTheme(prev => ({
+    ...prev,
+    [key]: value,
+  }));
+
+  const root =
+    document.documentElement;
+
+  const map: Record<
+    keyof typeof customTheme,
+    string
+  > = {
+    primary: '--mx-primary',
+    accent: '--mx-accent',
+    background: '--mx-background',
+    surface: '--mx-surface',
+    text: '--mx-text',
+    border: '--mx-border',
+  };
+
+  root.style.setProperty(
+    map[key],
+    value
+  );
+
+  /*
+   * CSS lama
+   */
+  if (key === 'primary') {
+    root.style.setProperty(
+      '--blue2',
+      value
     );
+  }
 
-    setMsg(`Tema "${theme.name}" berhasil diterapkan.`);
-  };
+  if (key === 'accent') {
+    root.style.setProperty(
+      '--blue',
+      value
+    );
+  }
 
-  const updateCustomColor=(
-    key:keyof typeof customTheme,
-    value:string
-  )=>{
-    setCustomTheme(prev=>({
-      ...prev,
-      [key]:value
-    }));
+  if (key === 'background') {
+    root.style.setProperty(
+      '--bg',
+      value
+    );
+  }
 
-    const root=document.documentElement;
+  if (key === 'surface') {
+    root.style.setProperty(
+      '--surface',
+      value
+    );
+  }
 
-    if(key==='primary'){
-      root.style.setProperty('--mx-primary',value);
-    }
+  if (key === 'text') {
+    root.style.setProperty(
+      '--ink',
+      value
+    );
+  }
 
-    if(key==='accent'){
-      root.style.setProperty('--mx-accent',value);
-      root.style.setProperty('--blue',value);
-    }
-
-    if(key==='background'){
-      root.style.setProperty('--mx-background',value);
-      root.style.setProperty('--bg',value);
-    }
-
-    if(key==='surface'){
-      root.style.setProperty('--mx-surface',value);
-      root.style.setProperty('--surface',value);
-    }
-
-    if(key==='text'){
-      root.style.setProperty('--mx-text',value);
-      root.style.setProperty('--ink',value);
-    }
-
-    if(key==='border'){
-      root.style.setProperty('--mx-border',value);
-      root.style.setProperty('--line',value);
-    }
-  };
-
+  if (key === 'border') {
+    root.style.setProperty(
+      '--line',
+      value
+    );
+  }
+};
   useEffect(()=>{
     supabase
       .from('hris_company_settings')
@@ -695,24 +810,92 @@ function Settings(){
     );
   };
 
-  const saveCustomTheme=()=>{
-    const theme={
-      id:'custom',
-      name:'Custom Theme',
-      description:'Tema kustom MoonXprojecT',
-      ...customTheme
-    };
-
-    applyTheme(theme);
-
-    localStorage.setItem(
-      'moonx-theme',
-      JSON.stringify(theme)
-    );
-
-    setMsg('Custom Theme berhasil disimpan.');
+const saveCustomTheme = () => {
+  const theme = {
+    id: 'custom',
+    name: 'Custom Theme',
+    description:
+      'Tema kustom MoonXprojecT',
+    ...customTheme,
   };
 
+  const root =
+    document.documentElement;
+
+  root.style.setProperty(
+    '--mx-primary',
+    customTheme.primary
+  );
+
+  root.style.setProperty(
+    '--mx-accent',
+    customTheme.accent
+  );
+
+  root.style.setProperty(
+    '--mx-background',
+    customTheme.background
+  );
+
+  root.style.setProperty(
+    '--mx-surface',
+    customTheme.surface
+  );
+
+  root.style.setProperty(
+    '--mx-text',
+    customTheme.text
+  );
+
+  root.style.setProperty(
+    '--mx-border',
+    customTheme.border
+  );
+
+  root.style.setProperty(
+    '--blue',
+    customTheme.accent
+  );
+
+  root.style.setProperty(
+    '--blue2',
+    customTheme.primary
+  );
+
+  root.style.setProperty(
+    '--blue-soft',
+    customTheme.background
+  );
+
+  root.style.setProperty(
+    '--ink',
+    customTheme.text
+  );
+
+  root.style.setProperty(
+    '--line',
+    customTheme.border
+  );
+
+  root.style.setProperty(
+    '--surface',
+    customTheme.surface
+  );
+
+  root.style.setProperty(
+    '--bg',
+    customTheme.background
+  );
+
+  localStorage.setItem(
+    'moonx-theme',
+    JSON.stringify(theme)
+  );
+
+  setMsg(
+    'Custom Theme berhasil disimpan dan diterapkan.'
+  );
+};
   const groups:any={
     'Perusahaan':[
       'company_name',
