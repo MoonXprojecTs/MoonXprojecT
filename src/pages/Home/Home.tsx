@@ -66,12 +66,16 @@ export default function Home({
         </div>
 
         <div
-          className="hero-visual"
-          aria-hidden="true"
-        >
+          <div className="hero-visual">
 
-          <div className="visual-glow" />
+  <div className="brand-hero-image">
+    <img
+      src="/sakura-moon.jpg"
+      alt="MoonXprojecT"
+    />
+  </div>
 
+  <div className="visual-glow" />
           <div className="dashboard-preview">
 
             <div className="preview-top">
