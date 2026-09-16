@@ -1,90 +1,273 @@
-import type { Handler } from '@netlify/functions';
 import { createClient } from '@supabase/supabase-js';
 
-export const handler: Handler = async (event) => {
+type NetlifyEvent = {
+  httpMethod?: string;
+  headers?: Record<string, string | undefined>;
+  body?: string | null;
+};
+
+export const handler = async (event: NetlifyEvent) => {
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
-      body: JSON.stringify({ error: 'Method not allowed' }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        error: 'Method not allowed',
+      }),
     };
   }
 
   try {
-    const token =
-      event.headers.authorization?.replace('Bearer ', '') || '';
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const serviceRoleKey =
+      process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !serviceRoleKey) {
+      return {
+        statusCode: 500,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          error:
+            'SUPABASE_URL atau SUPABASE_SERVICE_ROLE_KEY belum dikonfigurasi di Netlify.',
+        }),
+      };
+    }
+
+    const authorization =
+      event.headers?.authorization ||
+      event.headers?.Authorization ||
+      '';
+
+    const token = authorization.replace(/^Bearer\s+/i, '').trim();
 
     if (!token) {
       return {
         statusCode: 401,
-        body: JSON.stringify({ error: 'Unauthorized' }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          error: 'Sesi login tidak ditemukan.',
+        }),
       };
     }
 
     const supabase = createClient(
-      process.env.SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
+      supabaseUrl,
+      serviceRoleKey,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+        },
+      }
     );
 
-    // Cek user HR yang sedang login
+    /*
+     * ================================
+     * 1. VALIDASI USER HR
+     * ================================
+     */
+
     const {
-      data: { user },
+      data: authData,
       error: authError,
     } = await supabase.auth.getUser(token);
 
-    if (authError || !user) {
+    if (authError || !authData.user) {
       return {
         statusCode: 401,
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
           error: 'Sesi login tidak valid.',
         }),
       };
     }
 
-    // Cek role HR
-    const { data: hr, error: hrError } = await supabase
-      .from('hris_users')
-      .select('role,status')
-      .ilike('email', user.email || '')
-      .maybeSingle();
+    const currentEmail =
+      authData.user.email?.trim() || '';
 
-    if (
-      hrError ||
-      !hr ||
-      hr.status !== 'Aktif' ||
-      !['Super Admin', 'Admin', 'HRD'].includes(hr.role)
-    ) {
+    if (!currentEmail) {
       return {
         statusCode: 403,
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
-          error: 'Anda tidak memiliki izin.',
+          error: 'Email akun HR tidak ditemukan.',
         }),
       };
     }
 
-    const body = JSON.parse(event.body || '{}');
+    /*
+     * ================================
+     * 2. CEK ROLE HR
+     * ================================
+     */
 
-    if (!body.employee_id) {
+    const {
+      data: hrUser,
+      error: hrError,
+    } = await supabase
+      .from('hris_users')
+      .select('role,status,email')
+      .ilike('email', currentEmail)
+      .maybeSingle();
+
+    if (hrError) {
+      return {
+        statusCode: 500,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          error: hrError.message,
+        }),
+      };
+    }
+
+    if (!hrUser) {
+      return {
+        statusCode: 403,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          error:
+            'Akun Anda belum terdaftar sebagai pengguna HRIS.',
+        }),
+      };
+    }
+
+    if (hrUser.status !== 'Aktif') {
+      return {
+        statusCode: 403,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          error:
+            'Akun HR Anda belum aktif.',
+        }),
+      };
+    }
+
+    const allowedRoles = [
+      'Super Admin',
+      'Admin',
+      'HRD',
+    ];
+
+    if (!allowedRoles.includes(hrUser.role)) {
+      return {
+        statusCode: 403,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          error:
+            'Role Anda tidak memiliki izin untuk mengonfirmasi email karyawan.',
+        }),
+      };
+    }
+
+    /*
+     * ================================
+     * 3. BACA REQUEST
+     * ================================
+     */
+
+    let body: {
+      employee_id?: string;
+    } = {};
+
+    try {
+      body = JSON.parse(event.body || '{}');
+    } catch {
       return {
         statusCode: 400,
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
-          error: 'ID karyawan tidak ditemukan.',
+          error: 'Format request tidak valid.',
         }),
       };
     }
 
-    // Ambil karyawan
-    const { data: employee, error: employeeError } =
-      await supabase
-        .from('karyawan')
-        .select('id,auth_user_id,email')
-        .eq('id', body.employee_id)
-        .maybeSingle();
+    const employeeId =
+      body.employee_id?.trim();
 
-    if (employeeError || !employee) {
+    if (!employeeId) {
+      return {
+        statusCode: 400,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          error:
+            'ID karyawan tidak ditemukan.',
+        }),
+      };
+    }
+
+    /*
+     * ================================
+     * 4. CARI KARYAWAN
+     * ================================
+     */
+
+    const {
+      data: employee,
+      error: employeeError,
+    } = await supabase
+      .from('karyawan')
+      .select(
+        'id,id_karyawan,nama,email,auth_user_id,email_terverifikasi'
+      )
+      .eq('id', employeeId)
+      .maybeSingle();
+
+    if (employeeError) {
+      return {
+        statusCode: 500,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          error: employeeError.message,
+        }),
+      };
+    }
+
+    if (!employee) {
       return {
         statusCode: 404,
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
-          error: 'Karyawan tidak ditemukan.',
+          error:
+            'Data karyawan tidak ditemukan.',
+        }),
+      };
+    }
+
+    if (!employee.email) {
+      return {
+        statusCode: 400,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          error:
+            'Karyawan belum memiliki email.',
         }),
       };
     }
@@ -92,14 +275,25 @@ export const handler: Handler = async (event) => {
     if (!employee.auth_user_id) {
       return {
         statusCode: 400,
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
-          error: 'Karyawan belum memiliki akun login.',
+          error:
+            'Akun login karyawan belum terhubung.',
         }),
       };
     }
 
-    // Konfirmasi email Supabase Auth
-    const { error: confirmError } =
+    /*
+     * ================================
+     * 5. KONFIRMASI EMAIL SUPABASE AUTH
+     * ================================
+     */
+
+    const {
+      error: confirmError,
+    } =
       await supabase.auth.admin.updateUserById(
         employee.auth_user_id,
         {
@@ -110,14 +304,26 @@ export const handler: Handler = async (event) => {
     if (confirmError) {
       return {
         statusCode: 500,
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
-          error: confirmError.message,
+          error:
+            confirmError.message ||
+            'Email gagal dikonfirmasi.',
         }),
       };
     }
 
-    // Tandai di tabel karyawan
-    const { error: updateError } = await supabase
+    /*
+     * ================================
+     * 6. SIMPAN STATUS DI KARYAWAN
+     * ================================
+     */
+
+    const {
+      error: updateError,
+    } = await supabase
       .from('karyawan')
       .update({
         email_terverifikasi: true,
@@ -127,24 +333,49 @@ export const handler: Handler = async (event) => {
     if (updateError) {
       return {
         statusCode: 500,
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
-          error: updateError.message,
+          error:
+            updateError.message,
         }),
       };
     }
 
+    /*
+     * ================================
+     * 7. RESPONSE
+     * ================================
+     */
+
     return {
       statusCode: 200,
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({
         success: true,
-        message: 'Email berhasil dikonfirmasi.',
+        message:
+          `Email ${employee.email} berhasil dikonfirmasi.`,
+        employee_id: employee.id,
+        id_karyawan: employee.id_karyawan,
+        nama: employee.nama,
       }),
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : 'Server error.';
+
     return {
       statusCode: 500,
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({
-        error: error.message || 'Server error.',
+        error: message,
       }),
     };
   }
