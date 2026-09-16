@@ -2,8 +2,6 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { supabase } from '../../../lib/supabase/client';
 
 type Row = Record<string, any>;
-const money=(n:number)=>new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(Number(n||0));
-const today=()=>new Date().toISOString().slice(0,10);
 const tabs=[
  ['command','Command Center','KPI, workload, approvals'],['workflow','Workflow','SLA & multi-level approval'],['analytics','People Analytics','Headcount & attendance'],['documents','Documents','Dokumen & expiry'],['performance','Performance','KPI & review'],['workforce','Workforce','Roster & capacity'],['compliance','Compliance','Checklist & audit'],['settings','Enterprise Settings','Kontrol sistem']
 ] as const;
