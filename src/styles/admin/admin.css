@@ -100,3 +100,408 @@
 
 /* V-END final interaction polish */
 .permission-toggle{min-height:30px;border:1px solid #dfe4eb;border-radius:8px;background:#fff;color:#98a2b3;font-size:9px;font-weight:800;cursor:pointer}.permission-toggle:hover{border-color:#c9b071;background:#fffcf5;color:#6f541d}.permission-toggle.on{background:#172b4d;border-color:#172b4d;color:#fff}.permission-toggle:disabled{cursor:default;opacity:.7}.logout{display:flex;align-items:center;gap:8px}.logout .ui-icon{width:15px;height:15px}.alert.success{border-color:#cde8d8;background:#f1fbf5;color:#17663a}.ui-icon{width:17px;height:17px;display:block;flex:none}
+/* =========================================================
+   MOONXPROJECT — ENTERPRISE BUTTON SYSTEM
+   Global standard button: NAVY + GOLD BORDER
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   1. SEMUA TOMBOL STANDAR DI AREA ADMIN
+   --------------------------------------------------------- */
+
+.talenta-main button:not(.nav-item):not(.group-title):not(.icon-btn):not(.link-btn):not(.quick-action):not(.danger-text):not(.toast) {
+  min-height: 38px !important;
+  padding: 9px 15px !important;
+
+  background: #101a33 !important;
+  color: #ffffff !important;
+
+  border: 1px solid #d6ae58 !important;
+  border-radius: 9px !important;
+
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background .18s ease,
+    border-color .18s ease,
+    color .18s ease,
+    box-shadow .18s ease,
+    transform .12s ease;
+}
+
+/* Hover */
+
+.talenta-main button:not(.nav-item):not(.group-title):not(.icon-btn):not(.link-btn):not(.quick-action):not(.danger-text):not(.toast):hover {
+  background: #182544 !important;
+  color: #ffffff !important;
+
+  border-color: #f0cf7a !important;
+
+  box-shadow:
+    0 4px 12px rgba(16,26,51,.20);
+
+  transform: translateY(-1px);
+}
+
+/* Active / klik */
+
+.talenta-main button:not(.nav-item):not(.group-title):not(.icon-btn):not(.link-btn):not(.quick-action):not(.danger-text):not(.toast):active {
+  transform: translateY(0);
+}
+
+/* ---------------------------------------------------------
+   2. PRIMARY
+   --------------------------------------------------------- */
+
+.talenta-main button.primary,
+.talenta-main button.primary-btn,
+.talenta-main button.btn-primary {
+  background: #101a33 !important;
+  color: #ffffff !important;
+
+  border: 1px solid #d6ae58 !important;
+
+  box-shadow:
+    0 3px 9px rgba(16,26,51,.18);
+}
+
+.talenta-main button.primary:hover,
+.talenta-main button.primary-btn:hover,
+.talenta-main button.btn-primary:hover {
+  background: #182544 !important;
+  border-color: #f0cf7a !important;
+}
+
+/* ---------------------------------------------------------
+   3. SECONDARY
+   --------------------------------------------------------- */
+
+.talenta-main button.secondary {
+  background: #ffffff !important;
+  color: #101a33 !important;
+
+  border: 1px solid #d6ae58 !important;
+
+  box-shadow: none;
+}
+
+.talenta-main button.secondary:hover {
+  background: #faf6e9 !important;
+  color: #101a33 !important;
+  border-color: #f0cf7a !important;
+}
+
+/* ---------------------------------------------------------
+   4. FULL WIDTH
+   --------------------------------------------------------- */
+
+.talenta-main button.full {
+  width: 100%;
+}
+
+/* ---------------------------------------------------------
+   5. TAB / BRANCH TAB
+   --------------------------------------------------------- */
+
+.talenta-main .branch-tabs button,
+.talenta-main .branch-nav button {
+  min-height: 38px !important;
+
+  background: #ffffff !important;
+  color: #344054 !important;
+
+  border: 1px solid #d6ae58 !important;
+  border-radius: 8px !important;
+
+  padding: 8px 14px !important;
+
+  font-weight: 700;
+
+  box-shadow: none;
+
+  transform: none !important;
+}
+
+/* Tab hover */
+
+.talenta-main .branch-tabs button:hover,
+.talenta-main .branch-nav button:hover {
+  background: #faf6e9 !important;
+  color: #101a33 !important;
+  border-color: #f0cf7a !important;
+}
+
+/* Tab aktif */
+
+.talenta-main .branch-tabs button.active,
+.talenta-main .branch-nav button.active {
+  background: #101a33 !important;
+  color: #ffffff !important;
+
+  border: 1px solid #d6ae58 !important;
+
+  box-shadow:
+    0 3px 9px rgba(16,26,51,.18);
+
+  font-weight: 800;
+}
+
+/* ---------------------------------------------------------
+   6. TAB SETTINGS / TAB YANG TIDAK MEMILIKI CLASS
+   --------------------------------------------------------- */
+
+/*
+   Digunakan untuk tab seperti:
+
+   Perusahaan
+   Jam Kerja
+   Payroll
+   Absensi
+   Notifikasi
+   Keamanan
+
+   terutama jika tombol dibuat langsung dengan inline style.
+*/
+
+.talenta-main .settings button:not(.primary):not(.secondary) {
+  min-height: 38px !important;
+
+  background: #ffffff !important;
+  color: #101a33 !important;
+
+  border: 1px solid #d6ae58 !important;
+  border-radius: 8px !important;
+
+  padding: 8px 14px !important;
+
+  font-weight: 700;
+
+  box-shadow: none;
+
+  transform: none !important;
+}
+
+.talenta-main .settings button.active {
+  background: #101a33 !important;
+  color: #ffffff !important;
+
+  border-color: #d6ae58 !important;
+
+  box-shadow:
+    0 3px 9px rgba(16,26,51,.18);
+}
+
+/* ---------------------------------------------------------
+   7. ICON BUTTON
+   --------------------------------------------------------- */
+
+.talenta-main button.icon-btn {
+  width: 36px !important;
+  height: 36px !important;
+
+  min-height: 36px !important;
+  padding: 0 !important;
+
+  display: grid;
+  place-items: center;
+
+  background: #ffffff !important;
+  color: #101a33 !important;
+
+  border: 1px solid #d6ae58 !important;
+  border-radius: 9px !important;
+
+  box-shadow: none;
+
+  transform: none !important;
+}
+
+.talenta-main button.icon-btn:hover {
+  background: #101a33 !important;
+  color: #ffffff !important;
+  border-color: #f0cf7a !important;
+}
+
+/* ---------------------------------------------------------
+   8. LINK BUTTON
+   --------------------------------------------------------- */
+
+.talenta-main button.link-btn {
+  background: #ffffff !important;
+  color: #101a33 !important;
+
+  border: 1px solid #d6ae58 !important;
+  border-radius: 7px !important;
+
+  padding: 7px 11px !important;
+
+  font-weight: 700;
+
+  transform: none !important;
+}
+
+.talenta-main button.link-btn:hover {
+  background: #101a33 !important;
+  color: #ffffff !important;
+  border-color: #f0cf7a !important;
+}
+
+/* ---------------------------------------------------------
+   9. DANGER
+   Tetap merah untuk tombol hapus / tindakan berbahaya
+   --------------------------------------------------------- */
+
+.talenta-main button.danger-text {
+  background: #ffffff !important;
+  color: #b42318 !important;
+
+  border: 1px solid #e5a29c !important;
+  border-radius: 7px !important;
+
+  padding: 7px 11px !important;
+
+  transform: none !important;
+}
+
+.talenta-main button.danger-text:hover {
+  background: #b42318 !important;
+  color: #ffffff !important;
+
+  border-color: #b42318 !important;
+}
+
+/* ---------------------------------------------------------
+   10. QUICK ACTION
+   Quick action tetap berbentuk baris,
+   tetapi diberi aksen bingkai gold.
+   --------------------------------------------------------- */
+
+.talenta-main button.quick-action {
+  background: #ffffff !important;
+  color: #101a33 !important;
+
+  border: 1px solid #d6ae58 !important;
+  border-radius: 9px !important;
+
+  padding: 10px 12px !important;
+
+  margin-bottom: 7px;
+
+  transform: none !important;
+}
+
+.talenta-main button.quick-action:hover {
+  background: #faf6e9 !important;
+  border-color: #f0cf7a !important;
+}
+
+/* ---------------------------------------------------------
+   11. GROUP TITLE
+   Tidak dibuat seperti tombol aksi.
+   --------------------------------------------------------- */
+
+.talenta-sidebar button.group-title {
+  border: 0 !important;
+  background: transparent !important;
+  color: #98a2b3 !important;
+
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* ---------------------------------------------------------
+   12. SIDEBAR NAVIGATION
+   Tetap model menu, bukan tombol aksi.
+   --------------------------------------------------------- */
+
+.talenta-sidebar button.nav-item {
+  border: 1px solid transparent !important;
+  background: transparent !important;
+
+  color: #667085 !important;
+
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.talenta-sidebar button.nav-item:hover {
+  background: #f8fafc !important;
+  border-color: #d6ae58 !important;
+  color: #101a33 !important;
+}
+
+.talenta-sidebar button.nav-item.active {
+  background: #f7f1dc !important;
+  border-color: #d6ae58 !important;
+  color: #101a33 !important;
+
+  box-shadow: none !important;
+}
+
+/* ---------------------------------------------------------
+   13. LOGOUT
+   --------------------------------------------------------- */
+
+.talenta-sidebar button.logout {
+  background: transparent !important;
+  color: #9a3a3a !important;
+
+  border: 1px solid transparent !important;
+
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.talenta-sidebar button.logout:hover {
+  background: #fff1f2 !important;
+  border-color: #e5a29c !important;
+}
+
+/* ---------------------------------------------------------
+   14. DISABLED
+   --------------------------------------------------------- */
+
+.talenta-main button:disabled {
+  opacity: .5 !important;
+  cursor: not-allowed !important;
+
+  transform: none !important;
+
+  box-shadow: none !important;
+}
+
+/* ---------------------------------------------------------
+   15. FOCUS
+   --------------------------------------------------------- */
+
+.talenta-main button:focus-visible {
+  outline: 2px solid #d6ae58 !important;
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------
+   16. MOBILE
+   --------------------------------------------------------- */
+
+@media (max-width: 700px) {
+  .talenta-main button.primary,
+  .talenta-main button.secondary {
+    min-height: 40px !important;
+  }
+
+  .talenta-main .branch-tabs,
+  .talenta-main .branch-nav {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+
+  .talenta-main .branch-tabs button,
+  .talenta-main .branch-nav button {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+}
