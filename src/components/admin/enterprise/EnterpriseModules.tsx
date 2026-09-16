@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
 import { supabase } from '../../../lib/supabase/client';
 import '../../../styles/admin/admin.css';
 
