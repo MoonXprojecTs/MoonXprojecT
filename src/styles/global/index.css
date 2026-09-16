@@ -207,3 +207,243 @@ body {
 .runtime-error{min-height:100vh;display:grid;place-items:center;padding:32px;background:var(--bg,#f6f7fb)}
 .runtime-error-card{width:min(520px,100%);padding:32px;border:1px solid rgba(15,23,42,.1);border-radius:20px;background:#fff;box-shadow:0 18px 60px rgba(15,23,42,.1)}
 .runtime-error-card h1{margin:8px 0 10px;font-size:28px}.runtime-error-card p{color:#64748b;line-height:1.6;margin:0 0 22px}
+/* =========================================================
+   MOONXPROJECT - GLOBAL BUTTON & TAB STYLE
+   Navy + Gold Enterprise Style
+   ========================================================= */
+
+:root {
+  --mx-button-bg: #101a33;
+  --mx-button-bg-hover: #182544;
+  --mx-button-border: #d6ae58;
+  --mx-button-border-hover: #f0cf7a;
+  --mx-button-text: #ffffff;
+}
+
+/* =========================================================
+   TOMBOL STANDARD
+   ========================================================= */
+
+button.primary,
+button.secondary,
+button.full,
+button[type="submit"] {
+  background: var(--mx-button-bg);
+  color: var(--mx-button-text);
+  border: 1px solid var(--mx-button-border);
+  border-radius: 9px;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+
+  transition:
+    background .18s ease,
+    border-color .18s ease,
+    box-shadow .18s ease,
+    transform .12s ease;
+}
+
+/* Hover */
+
+button.primary:hover,
+button.secondary:hover,
+button.full:hover,
+button[type="submit"]:hover {
+  background: var(--mx-button-bg-hover);
+  color: #ffffff;
+  border-color: var(--mx-button-border-hover);
+
+  box-shadow:
+    0 4px 12px rgba(16, 26, 51, .25);
+
+  transform: translateY(-1px);
+}
+
+/* Klik */
+
+button.primary:active,
+button.secondary:active,
+button.full:active,
+button[type="submit"]:active {
+  transform: translateY(0);
+  box-shadow:
+    0 2px 5px rgba(16, 26, 51, .18);
+}
+
+/* =========================================================
+   TAB
+   ========================================================= */
+
+.tabs button,
+.tab-list button,
+.panel-tabs button,
+.settings-tabs button {
+  background: #ffffff;
+  color: #344054;
+
+  border: 1px solid var(--mx-button-border);
+  border-radius: 8px;
+
+  padding: 8px 14px;
+  min-height: 38px;
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background .18s ease,
+    color .18s ease,
+    border-color .18s ease,
+    box-shadow .18s ease;
+}
+
+/* Tab hover */
+
+.tabs button:hover,
+.tab-list button:hover,
+.panel-tabs button:hover,
+.settings-tabs button:hover {
+  background: #faf6e9;
+  color: #101a33;
+  border-color: var(--mx-button-border-hover);
+}
+
+/* Tab aktif */
+
+.tabs button.active,
+.tab-list button.active,
+.panel-tabs button.active,
+.settings-tabs button.active,
+button.active {
+  background: var(--mx-button-bg) !important;
+  color: #ffffff !important;
+
+  border: 1px solid var(--mx-button-border) !important;
+  border-radius: 8px;
+
+  font-weight: 800;
+
+  box-shadow:
+    0 3px 10px rgba(16, 26, 51, .20);
+}
+
+/* =========================================================
+   ICON BUTTON
+   ========================================================= */
+
+button.icon-btn {
+  background: #ffffff;
+  color: #101a33;
+
+  border: 1px solid var(--mx-button-border);
+  border-radius: 8px;
+
+  cursor: pointer;
+
+  transition:
+    background .18s ease,
+    color .18s ease,
+    border-color .18s ease;
+}
+
+button.icon-btn:hover {
+  background: var(--mx-button-bg);
+  color: #ffffff;
+  border-color: var(--mx-button-border-hover);
+}
+
+/* =========================================================
+   LINK BUTTON
+   ========================================================= */
+
+button.link-btn {
+  background: #ffffff;
+  color: #101a33;
+
+  border: 1px solid var(--mx-button-border);
+  border-radius: 7px;
+
+  cursor: pointer;
+  font-weight: 700;
+
+  transition: all .18s ease;
+}
+
+button.link-btn:hover {
+  background: var(--mx-button-bg);
+  color: #ffffff;
+  border-color: var(--mx-button-border-hover);
+}
+
+/* =========================================================
+   DANGER BUTTON
+   Tetap merah agar fungsi hapus/berbahaya mudah dikenali
+   ========================================================= */
+
+button.danger-text {
+  background: #ffffff;
+  color: #b42318;
+
+  border: 1px solid #e5a29c;
+  border-radius: 7px;
+
+  cursor: pointer;
+  font-weight: 700;
+
+  transition: all .18s ease;
+}
+
+button.danger-text:hover {
+  background: #b42318;
+  color: #ffffff;
+  border-color: #b42318;
+}
+
+/* =========================================================
+   BUTTON DISABLED
+   ========================================================= */
+
+button:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* =========================================================
+   FOCUS
+   ========================================================= */
+
+button:focus-visible {
+  outline: 2px solid #d6ae58;
+  outline-offset: 2px;
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+  .tabs,
+  .tab-list,
+  .panel-tabs,
+  .settings-tabs {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 5px;
+  }
+
+  .tabs button,
+  .tab-list button,
+  .panel-tabs button,
+  .settings-tabs button {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+}
