@@ -420,26 +420,37 @@ function Settings(){
   ];
 
   const applyTheme=(theme:any)=>{
-    const root=document.documentElement;
+  const root=document.documentElement;
 
-    root.style.setProperty('--mx-primary',theme.primary);
-    root.style.setProperty('--mx-accent',theme.accent);
-    root.style.setProperty('--mx-background',theme.background);
-    root.style.setProperty('--mx-surface',theme.surface);
-    root.style.setProperty('--mx-text',theme.text);
-    root.style.setProperty('--mx-border',theme.border);
+  root.style.setProperty('--mx-primary',theme.primary);
+  root.style.setProperty('--mx-accent',theme.accent);
+  root.style.setProperty('--mx-background',theme.background);
+  root.style.setProperty('--mx-surface',theme.surface);
+  root.style.setProperty('--mx-text',theme.text);
+  root.style.setProperty('--mx-border',theme.border);
 
-    root.style.setProperty('--blue',theme.accent);
-    root.style.setProperty('--ink',theme.text);
-    root.style.setProperty('--line',theme.border);
-    root.style.setProperty('--surface',theme.surface);
-    root.style.setProperty('--bg',theme.background);
+  root.style.setProperty('--blue',theme.accent);
+  root.style.setProperty('--ink',theme.text);
+  root.style.setProperty('--line',theme.border);
+  root.style.setProperty('--surface',theme.surface);
+  root.style.setProperty('--bg',theme.background);
 
-    localStorage.setItem('moonx-theme',JSON.stringify(theme));
+  setCustomTheme({
+    primary: theme.primary,
+    accent: theme.accent,
+    background: theme.background,
+    surface: theme.surface,
+    text: theme.text,
+    border: theme.border
+  });
 
-    setMsg(`Tema "${theme.name}" berhasil diterapkan.`);
-  };
+  localStorage.setItem(
+    'moonx-theme',
+    JSON.stringify(theme)
+  );
 
+  setMsg(`Tema "${theme.name}" berhasil diterapkan.`);
+};
   useEffect(()=>{
     supabase
       .from('hris_company_settings')
@@ -644,120 +655,388 @@ function Settings(){
 
           </div>
 
-          <div className="custom-theme-panel">
+         <div className="custom-theme-panel">
 
-            <div>
-              <h3>Custom Theme</h3>
-              <p>
-                Gunakan tema pilihan Anda dengan warna utama dan aksen perusahaan.
-              </p>
-            </div>
+  <div>
+    <h3>Custom Theme</h3>
+    <p>
+      Gunakan warna pilihan Anda untuk tampilan HRIS.
+    </p>
+  </div>
 
-            <div className="custom-theme-controls">
+  <div className="custom-theme-controls">
 
-              <label>
-                Primary
-                <input
-                  type="color"
-                  value={getComputedStyle(document.documentElement)
-                    .getPropertyValue('--mx-primary')
-                    .trim() || '#101a33'}
-                  onChange={e=>{
-                    document.documentElement.style.setProperty(
-                      '--mx-primary',
-                      e.target.value
-                    );
-                    document.documentElement.style.setProperty(
-                      '--ink',
-                      e.target.value
-                    );
-                  }}
-                />
-              </label>
+    <label>
+      Primary
+      <input
+        type="color"
+        value={currentPrimary}
+        onChange={e => {
+          const value = e.target.value;
 
-              <label>
-                Accent
-                <input
-                  type="color"
-                  value={getComputedStyle(document.documentElement)
-                    .getPropertyValue('--mx-accent')
-                    .trim() || '#d6ae58'}
-                  onChange={e=>{
-                    document.documentElement.style.setProperty(
-                      '--mx-accent',
-                      e.target.value
-                    );
-                    document.documentElement.style.setProperty(
-                      '--blue',
-                      e.target.value
-                    );
-                  }}
-                />
-              </label>
+          document.documentElement.style.setProperty(
+            '--mx-primary',
+            value
+          );
 
-            </div>
+          document.documentElement.style.setProperty(
+            '--ink',
+            value
+          );
+        }}
+      />
+    </label>
 
-            <button
-              type="button"
-              className="primary theme-save-button"
-              onClick={()=>{
-                const root=document.documentElement;
+    <label>
+      Accent
+      <input
+        type="color"
+        value={currentAccent}
+        onChange={e => {
+          const value = e.target.value;
 
-                const customTheme={
-                  id:'custom',
-                  name:'Custom Theme',
-                  description:'Tema kustom MoonXprojecT',
-                  primary:root
-                    .getPropertyValue('--mx-primary')
-                    .trim() || '#101a33',
-                  accent:root
-                    .getPropertyValue('--mx-accent')
-                    .trim() || '#d6ae58',
-                  background:root
-                    .getPropertyValue('--mx-background')
-                    .trim() || '#f6f7fb',
-                  surface:root
-                    .getPropertyValue('--mx-surface')
-                    .trim() || '#ffffff',
-                  text:root
-                    .getPropertyValue('--mx-text')
-                    .trim() || '#172033',
-                  border:root
-                    .getPropertyValue('--mx-border')
-                    .trim() || '#d6ae58'
-                };
+          document.documentElement.style.setProperty(
+            '--mx-accent',
+            value
+          );
 
-                localStorage.setItem(
-                  'moonx-theme',
-                  JSON.stringify(customTheme)
-                );
+          document.documentElement.style.setProperty(
+            '--blue',
+            value
+          );
+        }}
+      />
+    </label>
 
-                setMsg('Custom Theme berhasil disimpan.');
-              }}
-            >
-              Simpan Custom Theme
-            </button>
+    <label>
+      Background
+      <input
+        type="color"
+        value={currentBackground}
+        onChange={e => {
+          const value = e.target.value;
 
-          </div>
+          document.documentElement.style.setProperty(
+            '--mx-background',
+            value
+          );
 
-        </div>
-      ) : (
+          document.documentElement.style.setProperty(
+            '--bg',
+            value
+          );
+        }}
+      />
+    </label>
 
-        <div className="panel form-panel settings-content">
+    <label>
+      Surface
+      <input
+        type="color"
+        value={currentSurface}
+        onChange={e => {
+          const value = e.target.value;
 
-          <div className="form-grid">
+          document.documentElement.style.setProperty(
+            '--mx-surface',
+            value
+          );
 
-            {groups[tab].map((k:string)=>{
+          document.documentElement.style.setProperty(
+            '--surface',
+            value
+          );
+        }}
+      />
+    </label>
 
-              const v=f[k];
+    <label>
+      Text
+      <input
+        type="color"
+        value={currentText}
+        onChange={e => {
+          const value = e.target.value;
 
-              const bool=[
-                'auto_approve_attendance',
-                'notify_late',
-                'notify_leave',
-                'maintenance_mode'
-              ].includes(k);
+          document.documentElement.style.setProperty(
+            '--mx-text',
+            value
+          );
 
+          document.documentElement.style.setProperty(
+            '--ink',
+            value
+          );
+        }}
+      />
+    </label>
+
+    <label>
+      Border
+      <input
+        type="color"
+        value={currentBorder}
+        onChange={e => {
+          const value = e.target.value;
+
+          document.documentElement.style.setProperty(
+            '--mx-border',
+            value
+          );
+
+          document.documentElement.style.setProperty(
+            '--line',
+            value
+          );
+        }}
+      />
+    </label>
+
+  </div>
+
+</div>
+        
+
+        <div className="custom-theme-panel">
+
+  <div>
+    <h3>Custom Theme</h3>
+    <p>
+      Gunakan warna pilihan Anda untuk tampilan HRIS.
+    </p>
+  </div>
+
+  <div className="custom-theme-controls">
+
+    <label>
+      Primary
+      <input
+        type="color"
+        value={customTheme.primary}
+        onChange={e => {
+          const value = e.target.value;
+
+          setCustomTheme(prev => ({
+            ...prev,
+            primary: value
+          }));
+
+          document.documentElement.style.setProperty(
+            '--mx-primary',
+            value
+          );
+        }}
+      />
+    </label>
+
+    <label>
+      Accent
+      <input
+        type="color"
+        value={customTheme.accent}
+        onChange={e => {
+          const value = e.target.value;
+
+          setCustomTheme(prev => ({
+            ...prev,
+            accent: value
+          }));
+
+          document.documentElement.style.setProperty(
+            '--mx-accent',
+            value
+          );
+
+          document.documentElement.style.setProperty(
+            '--blue',
+            value
+          );
+        }}
+      />
+    </label>
+
+    <label>
+      Background
+      <input
+        type="color"
+        value={customTheme.background}
+        onChange={e => {
+          const value = e.target.value;
+
+          setCustomTheme(prev => ({
+            ...prev,
+            background: value
+          }));
+
+          document.documentElement.style.setProperty(
+            '--mx-background',
+            value
+          );
+
+          document.documentElement.style.setProperty(
+            '--bg',
+            value
+          );
+        }}
+      />
+    </label>
+
+    <label>
+      Surface
+      <input
+        type="color"
+        value={customTheme.surface}
+        onChange={e => {
+          const value = e.target.value;
+
+          setCustomTheme(prev => ({
+            ...prev,
+            surface: value
+          }));
+
+          document.documentElement.style.setProperty(
+            '--mx-surface',
+            value
+          );
+
+          document.documentElement.style.setProperty(
+            '--surface',
+            value
+          );
+        }}
+      />
+    </label>
+
+    <label>
+      Text
+      <input
+        type="color"
+        value={customTheme.text}
+        onChange={e => {
+          const value = e.target.value;
+
+          setCustomTheme(prev => ({
+            ...prev,
+            text: value
+          }));
+
+          document.documentElement.style.setProperty(
+            '--mx-text',
+            value
+          );
+
+          document.documentElement.style.setProperty(
+            '--ink',
+            value
+          );
+        }}
+      />
+    </label>
+
+    <label>
+      Border
+      <input
+        type="color"
+        value={customTheme.border}
+        onChange={e => {
+          const value = e.target.value;
+
+          setCustomTheme(prev => ({
+            ...prev,
+            border: value
+          }));
+
+          document.documentElement.style.setProperty(
+            '--mx-border',
+            value
+          );
+
+          document.documentElement.style.setProperty(
+            '--line',
+            value
+          );
+        }}
+      />
+    </label>
+
+  </div>
+
+  <div className="custom-theme-actions">
+
+    <button
+      className="primary"
+      onClick={() => {
+        const root = document.documentElement;
+
+        root.style.setProperty(
+          '--mx-primary',
+          customTheme.primary
+        );
+
+        root.style.setProperty(
+          '--mx-accent',
+          customTheme.accent
+        );
+
+        root.style.setProperty(
+          '--mx-background',
+          customTheme.background
+        );
+
+        root.style.setProperty(
+          '--mx-surface',
+          customTheme.surface
+        );
+
+        root.style.setProperty(
+          '--mx-text',
+          customTheme.text
+        );
+
+        root.style.setProperty(
+          '--mx-border',
+          customTheme.border
+        );
+
+        root.style.setProperty(
+          '--blue',
+          customTheme.accent
+        );
+
+        root.style.setProperty(
+          '--ink',
+          customTheme.text
+        );
+
+        root.style.setProperty(
+          '--bg',
+          customTheme.background
+        );
+
+        root.style.setProperty(
+          '--surface',
+          customTheme.surface
+        );
+
+        root.style.setProperty(
+          '--line',
+          customTheme.border
+        );
+
+        localStorage.setItem(
+          'moonx-theme',
+          JSON.stringify(customTheme)
+        );
+
+        setMsg('Custom Theme berhasil disimpan.');
+      }}
+    >
+      Simpan Custom Theme
+    </button>
+
+  </div>
+
+</div>
               return (
                 <label key={k}>
 
